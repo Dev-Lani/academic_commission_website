@@ -1,0 +1,37 @@
+/* Order chat (Increment 4b) */
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.chat{margin-top:1.5rem}
+.chat-log{list-style:none;margin:0;padding:1rem 1.25rem;max-height:22rem;min-height:5rem;overflow-y:auto;display:flex;flex-direction:column;gap:.7rem;background:var(--paper)}
+.msg{max-width:78%;display:flex;flex-direction:column;gap:.15rem}
+.msg.mine{align-self:flex-end;align-items:flex-end}
+.msg.theirs{align-self:flex-start}
+.bubble{padding:.55rem .85rem;border-radius:12px;white-space:pre-wrap;overflow-wrap:anywhere;background:var(--surface);border:1px solid var(--line)}
+.msg.mine .bubble{background:var(--brand);border-color:var(--brand);color:#fff;border-bottom-right-radius:4px}
+.msg.theirs .bubble{border-bottom-left-radius:4px}
+.msg small{color:var(--muted);font-size:.78rem}
+.chat-form{display:flex;gap:.75rem;align-items:flex-end;padding:.9rem 1.25rem;border-top:1px solid var(--line)}
+.chat-form textarea{min-height:0;height:3.2rem;resize:vertical}
+.chat-form .btn{flex:none}
+.chat-closed{padding:.9rem 1.25rem;margin:0;border-top:1px solid var(--line);color:var(--muted)}
+.chat-note{padding:0 1.25rem .9rem;margin:0}
+.chat-form[hidden],.chat-empty[hidden]{display:none}
+@media (max-width:620px){.msg{max-width:92%}.chat-log{max-height:18rem}}
+
+/* Messages page */
+.msgs{display:grid;grid-template-columns:19rem 1fr;gap:1.5rem;align-items:start}
+.convos ul{list-style:none;margin:0;padding:.4rem;max-height:34rem;overflow-y:auto}
+.convo{display:grid;gap:.1rem;padding:.7rem .8rem;border-radius:8px;text-decoration:none;color:var(--ink)}
+.convo:hover{background:#EDEFF6;color:var(--ink)}
+.convo.on{background:#EEF0FD;box-shadow:inset 3px 0 0 var(--brand)}
+.convo-top{display:flex;justify-content:space-between;align-items:center;gap:.5rem}
+.convo-top time{font-size:.78rem;color:var(--muted);white-space:nowrap}
+.convo-top .badge{margin-left:0}
+.convo-title{font-size:.86rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.convo-prev{font-size:.9rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.convo.unread .convo-prev{color:var(--ink);font-weight:600}
+.convo-head{display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;margin-bottom:1rem}
+.convo-head h2{margin:0}
+.convo-main .chat{margin-top:0}
+.convo-main .chat>h2{display:none}
+.convo-main .chat-log{min-height:18rem;max-height:60vh}
+@media (max-width:820px){.msgs{grid-template-columns:1fr}.convos ul{max-height:14rem}}

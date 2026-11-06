@@ -1,0 +1,89 @@
+/* Dashboard (dashboard.php). All classes start with d- so nothing else is affected. */
+.d-head{display:flex;justify-content:space-between;align-items:center;gap:.75rem;flex-wrap:wrap;margin-bottom:1.25rem}
+.d-head h1{margin:0}
+.d-head small{display:block;color:var(--muted)}
+.d-head .btn{width:auto;min-height:44px;display:inline-flex;align-items:center;padding:0 1.25rem}
+
+/* stat tiles */
+.d-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:.75rem;margin-bottom:1.5rem}
+.d-stat{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:.9rem 1rem}
+.d-stat small{display:block;color:var(--muted)}
+.d-stat b{display:block;font:700 1.65rem/1.2 var(--font-d)}
+.d-stat.hot{background:var(--ink);border-color:var(--ink);color:#fff}
+.d-stat.hot small{color:#C9CEE8}
+.d-stat.hot b{color:var(--hl)}
+
+/* layout */
+.d-cols{display:grid;grid-template-columns:1fr 18.75rem;gap:1.5rem;align-items:start}
+.d-cols>*{min-width:0}
+.d-main{display:grid;gap:1.5rem}
+.d-aside{display:grid;gap:1rem}
+.d-sh{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:.6rem}
+.d-sh h2{margin:0;font-size:1.1rem}
+.d-sh a{font-size:.88rem;font-weight:600;text-decoration:none}
+.d-list{list-style:none;margin:0;padding:0;display:grid;gap:.65rem}
+.d-empty{margin:0;padding:1rem;background:var(--surface);border:1px dashed var(--line);border-radius:12px;color:var(--muted);font-size:.92rem}
+
+/* needs attention */
+.d-att{display:flex;align-items:center;gap:.85rem;background:var(--surface);border:2px solid var(--brand);border-radius:12px;padding:.7rem .9rem}
+.d-dot{width:10px;height:10px;border-radius:50%;background:var(--brand);flex:none}
+.d-att.red .d-dot{background:var(--bad)}
+.d-att.red{border-color:var(--bad)}
+.d-at{flex:1;min-width:0}
+.d-at b{display:block;overflow-wrap:anywhere}
+.d-at small{display:block;color:var(--muted)}
+.d-att.red .d-at small{color:var(--bad);font-weight:600}
+.d-att .btn,.d-row2 .btn,.d-rq .btn{width:auto;min-height:44px;display:inline-flex;align-items:center;justify-content:center;padding:0 1.1rem;flex:none}
+
+/* order cards */
+.d-card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:1rem;display:grid;gap:.8rem}
+.d-top{display:flex;gap:.75rem;align-items:center}
+.d-av{width:36px;height:36px;border-radius:50%;background:#E8EBF7;color:var(--brand-dark);font-weight:700;display:inline-flex;align-items:center;justify-content:center;flex:none}
+.d-who{flex:1;min-width:0}
+.d-who small{color:var(--muted)}
+.d-t{display:block;font:700 1rem/1.25 var(--font-d);color:var(--ink);text-decoration:none;overflow-wrap:anywhere}
+.d-t:hover{color:var(--brand)}
+.d-t small{display:block;font:400 .82rem var(--font-b);color:var(--muted);margin-top:.15rem}
+.d-top .tag{flex:none}
+.d-seg{display:flex;gap:4px}
+.d-seg i{flex:1;height:8px;border-radius:4px;background:var(--line)}
+.d-seg i.on{background:var(--brand)}
+.d-seg i.bad{background:var(--bad)}
+.d-row2{display:flex;align-items:center;gap:.75rem;flex-wrap:wrap}
+.d-ck{margin-right:auto;font-weight:700;font-size:.92rem}
+.d-ck.red{color:var(--bad)}
+
+/* open requests / offers */
+.d-rq{display:flex;align-items:center;gap:.75rem;flex-wrap:wrap;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:.7rem .9rem}
+.d-rq .d-t{flex:1 1 12rem;font-size:.95rem}
+.d-due{font-size:.82rem;color:var(--muted);white-space:nowrap}
+
+/* sidebar cards */
+.d-pc{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:1rem;display:grid;gap:.75rem}
+.d-pc h2{margin:0;font-size:1rem}
+.d-rep{display:flex;gap:1rem;align-items:center}
+.d-rep small{display:block;color:var(--muted)}
+.d-ring{width:84px;height:84px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;
+  background:conic-gradient(var(--brand) calc(var(--p) * 1%), #E8EBF7 0)}
+.d-ring b{width:64px;height:64px;border-radius:50%;background:var(--surface);display:flex;align-items:center;justify-content:center;font:700 1.35rem var(--font-d)}
+.d-kv{display:flex;justify-content:space-between;gap:.5rem;font-size:.9rem}
+.d-kv span{color:var(--muted)}
+.d-chips{display:flex;flex-wrap:wrap;gap:.4rem}
+.d-more{font-weight:600;text-decoration:none;font-size:.92rem}
+.d-ql{display:grid;gap:.5rem}
+.d-ql a{display:flex;justify-content:space-between;align-items:center;min-height:44px;padding:0 .9rem;border:1px solid var(--line);border-radius:10px;color:var(--ink);text-decoration:none;font-weight:500}
+.d-ql a:hover{background:#F4F6FB;color:var(--ink)}
+.d-badge{margin:0}
+
+@media (max-width:900px){
+  .d-cols{grid-template-columns:1fr}
+}
+@media (max-width:620px){
+  .d-stats{grid-template-columns:1fr 1fr}
+  .d-head .btn{width:100%;justify-content:center}
+  .d-att{flex-wrap:wrap}
+  .d-att .btn,.d-row2 .btn,.d-rq .btn{width:100%}
+  .d-ck{width:100%;margin:0}
+  .d-top{flex-wrap:wrap}
+  .d-top .tag{order:3}
+}

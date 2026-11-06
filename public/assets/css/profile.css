@@ -1,0 +1,10 @@
+/* Profiles, badges, rating form (Increment 6) */
+.badges{display:flex;flex-wrap:wrap;gap:.4rem}
+.rate-form{max-width:34rem}
+.rate-form textarea{min-height:5.5rem}
+.admin-grid{display:grid;gap:1.5rem}
+.inline{display:inline;margin:0}
+.log{list-style:none;margin:0;padding:.5rem 1.25rem 1rem;color:var(--muted);font-size:.9rem}
+.decision{display:grid;gap:.6rem;margin-bottom:1rem}
+.decision label{display:flex;gap:.6rem;align-items:flex-start;font-weight:500}
+.decision input{margin-top:.35rem}
