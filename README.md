@@ -6,34 +6,92 @@ PHP + MySQL marketplace for academic commissions (clients post requests, commiss
 
 ```
 acw/
-├── public/                 <- web root (the only folder the browser should reach)
+├── README.md
+│
+├── public/
 │   ├── index.php
-│   ├── login.php  register.php  logout.php
-│   ├── dashboard.php  profile.php  inbox.php  transactions.php
-│   ├── forum.php  post.php  create_post.php  vote.php  offer.php
-│   ├── orders.php  order.php  order_action.php  deliver.php  preview.php  download.php
-│   ├── messages.php  chat.php
-│   ├── admin/              index.php  order.php  action.php
+│   ├── login.php
+│   ├── register.php
+│   ├── logout.php
+│   ├── dashboard.php
+│   ├── profile.php
+│   ├── inbox.php
+│   ├── transactions.php
+│   ├── forum.php
+│   ├── post.php
+│   ├── create_post.php
+│   ├── vote.php
+│   ├── offer.php
+│   ├── orders.php
+│   ├── order.php
+│   ├── order_action.php
+│   ├── deliver.php
+│   ├── preview.php
+│   ├── download.php
+│   ├── messages.php
+│   ├── chat.php
+│   ├── chat_list.php
+│   │
+│   ├── admin/
+│   │   ├── index.php
+│   │   ├── order.php
+│   │   └── action.php
+│   │
 │   └── assets/
-│       ├── css/            style.css  chat.css  dash.css  forum.css  order.css  profile.css
-│       └── js/             chat.js  countdown.js
-├── src/                    <- shared PHP logic (never served directly)
-│   ├── bootstrap.php       loads everything below, starts the session, defines BASE_URL
-│   ├── config.php          DB credentials, fees, windows, paths
-│   ├── database.php        PDO connection
-│   ├── cache.php           APCu / file cache
-│   ├── helpers.php         e(), money(), csrf, redirect(), vote_box(), status_tag() ...
-│   ├── auth.php            require_login(), require_admin(), notify()
-│   ├── reputation.php      stats, tiers, trust score, badges, ratings
-│   ├── order_lib.php       lazy expiry, escrow release/refund
-│   └── chat_lib.php        chat queries and the chat panel
-├── templates/              head.php  nav.php  auth_side.php
-├── database/migrations/    001_users.sql ... 009_indexes.sql (run in order)
-├── storage/                <- private runtime data, blocked by .htaccess
-│   ├── outputs/            delivered files and previews
-│   └── cache/              file cache
-├── tools/                  seed.php  monitor.py
-└── docs/                   TEST_PLAN.md
+│       ├── css/
+│       │   ├── style.css
+│       │   ├── ui.css
+│       │   ├── chat.css
+│       │   ├── dash.css
+│       │   ├── forum.css
+│       │   ├── order.css
+│       │   ├── orders.css
+│       │   └── profile.css
+│       └── js/
+│           ├── chat.js
+│           ├── bubble.js
+│           ├── nav.js
+│           ├── countdown.js
+│           └── create_post.js
+│
+├── src/
+│   ├── bootstrap.php
+│   ├── config.php
+│   ├── database.php
+│   ├── cache.php
+│   ├── helpers.php
+│   ├── auth.php
+│   ├── reputation.php
+│   ├── order_lib.php
+│   └── chat_lib.php
+│
+├── templates/
+│   ├── head.php
+│   ├── nav.php
+│   └── auth_side.php
+│
+├── database/
+│   └── migrations/
+│       ├── 001_users.sql
+│       ├── 002_forum.sql
+│       ├── 003_offers.sql
+│       ├── 004_orders.sql
+│       ├── 005_chat.sql
+│       ├── 006_chat_reads.sql
+│       ├── 007_escrow.sql
+│       ├── 008_disputes_ratings.sql
+│       └── 009_indexes.sql
+│
+├── storage/
+│   ├── outputs/
+│   └── cache/
+│
+├── tools/
+│   ├── seed.php
+│   └── monitor.py
+│
+└── docs/
+    └── TEST_PLAN.md
 ```
 
 ## Setup
