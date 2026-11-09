@@ -68,3 +68,24 @@ function status_tag($s){
   [$t, $c] = $m[$s] ?? [$s, ''];
   return '<span class="tag ' . $c . '">' . e($t) . '</span>';
 }
+
+// Progress stepper for an order row. When the row carries accepted_at, each reached step also shows its date.
+function order_timeline($o){
+  $map = ['pending_agree' => ['cur', '', '', ''], 'active' => ['done', 'cur', '', ''],
+          'delivered' => ['done', 'done', 'cur', ''], 'disputed' => ['done', 'done', 'bad', ''],
+          'completed' => ['done', 'done', 'done', 'done']];
+  $st = $o['status'] ?? '';
+  if (!isset($map[$st])) return '';
+  $note = ['cur' => ' <span class="o-sr">(current step)</span>', 'bad' => ' <span class="o-sr">(disputed)</span>',
+           'done' => ' <span class="o-sr">(done)</span>', '' => ''];
+  $dated = isset($o['accepted_at']);
+  $keys  = ['accepted_at', 'started_at', 'delivered_at', 'completed_at'];
+  $h = '<ol class="o-steps' . ($dated ? ' rt-steps' : '') . '" aria-label="Order progress">';
+  foreach (['Accepted', 'Started', 'Delivered', 'Completed'] as $i => $label) {
+    $s = $map[$st][$i];
+    $d = $dated && $s !== '' && !empty($o[$keys[$i]])
+       ? '<small><time datetime="' . e(date('c', strtotime($o[$keys[$i]]))) . '">' . e(date('M j', strtotime($o[$keys[$i]]))) . '</time></small>' : '';
+    $h .= '<li' . ($s ? ' class="' . $s . '"' : '') . '>' . e($label) . $note[$s] . $d . '</li>';
+  }
+  return $h . '</ol>';
+}

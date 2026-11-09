@@ -3,7 +3,7 @@ require dirname(__DIR__) . '/src/bootstrap.php';
 $me = require_login();
 $id = (int)($_GET['id'] ?? 0);
 
-$q = $pdo->prepare("SELECT ord.*, p.title, cl.username AS client_name, cm.username AS comm_name, cm.tier AS comm_tier,
+$q = $pdo->prepare("SELECT ord.*, p.title, cl.username AS client_name, cl.tier AS client_tier, cm.username AS comm_name, cm.tier AS comm_tier,
     x.final_name,
     (SELECT COUNT(*) FROM view_logs v WHERE v.order_id=ord.id) AS views
   FROM orders ord
@@ -36,17 +36,28 @@ if ($o['status'] === 'disputed') {
 }
 $escrow = ['none'=>'Not funded', 'held'=>'Held in escrow', 'released'=>'Released', 'refunded'=>'Refunded'][$o['escrow_status']] ?? $o['escrow_status'];
 $payout = (int)$o['price'] - (int)$o['fee'];
-$feePct = $o['price'] ? round($o['fee'] * 100 / $o['price']) : 0;
 $myRating = $theirRating = null;
 if ($o['status'] === 'completed') {
   $rq = $pdo->prepare('SELECT stars, comment FROM ratings WHERE order_id=? AND rater_id=?');
   $rq->execute([$id, $me['id']]); $myRating = $rq->fetch();
   if ($myRating) { $rq->execute([$id, $isComm ? $o['client_id'] : $o['commissioner_id']]); $theirRating = $rq->fetch(); } // blind until you rate
+
+  $os      = user_stats($isComm ? $o['client_id'] : $o['commissioner_id']); // the other party, fetched once
+  $osTier  = $isComm ? $o['client_tier'] : $o['comm_tier'];
+  $tags = $isComm
+    ? ['Clear instructions', 'Responsive', 'Fair request', 'Easy to work with']
+    : ['On time', 'Great communication', 'Followed instructions', 'Good quality'];
+  $faces = [1 => ['Poor',      '<path d="M9 10h.01M15 10h.01"/><path d="M8.5 17.5c.9-1.8 2-2.7 3.5-2.7s2.6.9 3.5 2.7"/>'],
+            2 => ['Fair',      '<path d="M9 10h.01M15 10h.01"/><path d="M9 16.2c.9-.8 1.9-1.2 3-1.2s2.1.4 3 1.2"/>'],
+            3 => ['Okay',      '<path d="M9 10h.01M15 10h.01"/><path d="M9 15.5h6"/>'],
+            4 => ['Great',     '<path d="M9 10h.01M15 10h.01"/><path d="M8.5 14c.9 1.8 2 2.7 3.5 2.7s2.6-.9 3.5-2.7"/>'],
+            5 => ['Excellent', '<path d="M9 9.5h.01M15 9.5h.01"/><path d="M8 13.5h8c0 2.6-1.8 4.2-4 4.2s-4-1.6-4-4.2z"/>']];
+  $face = fn($n, $px = 34) => '<svg class="rt-ico" width="' . $px . '" height="' . $px . '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/>' . $faces[$n][1] . '</svg>';
 }
 ?>
 <!doctype html>
 <html lang="en"><head><title>Order · Academic Commission</title><?php include TEMPLATE_PATH . 'head.php'; ?>
-<link rel="stylesheet" href="<?= BASE_URL ?>assets/css/chat.css"><link rel="stylesheet" href="<?= BASE_URL ?>assets/css/order.css"><link rel="stylesheet" href="<?= BASE_URL ?>assets/css/profile.css"></head>
+<link rel="stylesheet" href="<?= BASE_URL ?>assets/css/chat.css"><link rel="stylesheet" href="<?= BASE_URL ?>assets/css/order.css"><link rel="stylesheet" href="<?= BASE_URL ?>assets/css/profile.css"><?php if ($o['status'] === 'completed'): ?><link rel="stylesheet" href="<?= BASE_URL ?>assets/css/orders.css"><link rel="stylesheet" href="<?= BASE_URL ?>assets/css/dash.css"><link rel="stylesheet" href="<?= BASE_URL ?>assets/css/rate.css"><?php endif; ?></head>
 <body>
 <?php include TEMPLATE_PATH . 'nav.php'; ?>
 <main class="wrap">
@@ -163,40 +174,92 @@ if ($o['status'] === 'completed') {
       </section>
 
     <?php elseif ($o['status'] === 'completed'): ?>
-      <section class="panel panel-pad">
-        <h2>Completed</h2>
-        <dl class="money">
-          <div><dt>Price</dt><dd><?= money($o['price']) ?></dd></div>
-          <div><dt>Platform fee (<?= $feePct ?>%)</dt><dd>−<?= money($o['fee']) ?></dd></div>
-          <div class="total"><dt>Commissioner receives</dt><dd><?= money($payout) ?></dd></div>
-        </dl>
-        <?php if ($o['final_name']): ?>
-          <a class="btn sm" href="download.php?id=<?= $id ?>">Download <?= e($o['final_name']) ?></a>
-        <?php endif; ?>
-        <h3 style="margin-top:1.5rem">Rate <?= e($other) ?></h3>
-        <?php if (!$myRating): ?>
-          <p class="muted">Required. You can't post requests or send offers until you rate. The comment shows on <?= e($other) ?>'s profile.</p>
-          <?php if ($flashErr): ?><div class="alert err" role="alert"><?= e($flashErr) ?></div><?php endif; ?>
-          <form method="post" action="order_action.php" class="rate-form">
-            <input type="hidden" name="csrf" value="<?= csrf_token() ?>">
-            <input type="hidden" name="order_id" value="<?= $id ?>">
-            <input type="hidden" name="action" value="rate">
-            <div class="field"><label class="lbl" for="stars">Rating</label>
-              <select id="stars" name="stars" required>
-                <option value="">Choose</option>
-                <?php for ($i = 5; $i >= 1; $i--): ?><option value="<?= $i ?>"><?= $i ?> <?= $i == 1 ? 'star' : 'stars' ?></option><?php endfor; ?>
-              </select></div>
-            <div class="field"><label class="lbl" for="comment">Comment</label>
-              <textarea id="comment" name="comment" maxlength="1000" required><?= e($oldComment) ?></textarea>
-              <p class="hint">Ratings below 3 stars need a reason (30+ characters).</p></div>
-            <button class="btn sm">Submit rating</button>
-          </form>
-        <?php else: ?>
-          <p>You gave <b><?= (int)$myRating['stars'] ?>/5</b>.</p>
-          <?php if ($theirRating): ?><p class="muted"><?= e($other) ?> rated you <?= (int)$theirRating['stars'] ?>/5.</p>
-          <?php else: ?><p class="muted">You will see <?= e($other) ?>'s rating once they submit it.</p><?php endif; ?>
-        <?php endif; ?>
+      <section class="panel rt-time" aria-label="Order progress"><?= order_timeline($o) ?></section>
+
+      <section class="panel rt-card<?= $myRating ? ' done' : '' ?>" id="rate" aria-labelledby="rt-h">
+        <div class="rt-strip">
+          <span class="rt-flag"><?= $myRating ? 'Done · rating submitted' : 'Last step · rating required' ?></span>
+          <span class="rt-left"><?= $myRating ? 'All caught up' : '1 of 1 left' ?></span>
+        </div>
+        <div class="rt-body">
+          <div class="rt-head">
+            <span class="rt-av" aria-hidden="true"><?= e(strtoupper(mb_substr($other, 0, 1))) ?></span>
+            <div>
+              <?php if ($myRating): ?>
+                <h2 id="rt-h">Your rating</h2>
+                <p class="muted">Thanks. Ratings keep the marketplace honest.</p>
+              <?php else: ?>
+                <h2 id="rt-h">How was working with <span class="rt-hl"><?= e($other) ?></span>?</h2>
+                <p class="muted">You can't post or send offers until you rate.</p>
+              <?php endif; ?>
+            </div>
+          </div>
+
+          <?php if (!$myRating): ?>
+            <form method="post" action="order_action.php" class="rt-form" id="rate-form">
+              <input type="hidden" name="csrf" value="<?= csrf_token() ?>">
+              <input type="hidden" name="order_id" value="<?= $id ?>">
+              <input type="hidden" name="action" value="rate">
+              <div class="alert err rt-err" id="rt-err" role="alert" aria-live="polite"<?= $flashErr ? '' : ' hidden' ?>><?= e($flashErr) ?></div>
+
+              <fieldset class="rt-pick">
+                <legend class="sr">Rating</legend>
+                <div class="rt-faces">
+                  <?php foreach ($faces as $n => [$lab]): ?>
+                    <label class="rt-face"><input type="radio" name="stars" value="<?= $n ?>" required><span class="rt-tile"><?= $face($n) ?><b><?= e($lab) ?></b></span></label>
+                  <?php endforeach; ?>
+                </div>
+              </fieldset>
+
+              <div class="rt-tags">
+                <span class="rt-add">Add:</span>
+                <?php foreach ($tags as $t): ?><button type="button" class="qk" data-add="<?= e($t) ?>." aria-pressed="false"><?= e($t) ?></button><?php endforeach; ?>
+              </div>
+
+              <div class="field rt-cm">
+                <label class="lbl" for="comment">Comment</label>
+                <textarea id="comment" name="comment" maxlength="1000" required><?= e($oldComment) ?></textarea>
+                <p class="hint rt-hint" id="rt-hint"><span id="rt-rule">At least 10 characters.</span><span id="rt-count"><?= mb_strlen($oldComment) ?> / 1000</span></p>
+              </div>
+
+              <div class="rt-prev">
+                <small>How it will look on <?= e($other) ?>'s profile</small>
+                <div class="rt-pv-top"><span class="rt-pv-face" id="rt-pv-face" aria-hidden="true"></span><b id="rt-pv-label" aria-live="polite">No rating yet</b><span class="muted">by you</span></div>
+                <p class="rt-pv-text rt-empty" id="rt-pv-text">Your comment appears here.</p>
+              </div>
+
+              <button class="btn rt-submit">Submit rating</button>
+            </form>
+          <?php else: ?>
+            <div class="rt-done">
+              <div class="rt-box"><small>You rated <?= e($other) ?></small>
+                <div class="rt-bx-top"><?= $face((int)$myRating['stars'], 28) ?><b><?= e($faces[(int)$myRating['stars']][0]) ?></b></div>
+                <p><?= nl2br(e($myRating['comment'])) ?></p></div>
+              <?php if ($theirRating): ?>
+                <div class="rt-box"><small><?= e($other) ?>'s rating of you</small>
+                  <div class="rt-bx-top"><?= $face((int)$theirRating['stars'], 28) ?><b><?= e($faces[(int)$theirRating['stars']][0]) ?></b></div>
+                  <p><?= nl2br(e($theirRating['comment'])) ?></p></div>
+              <?php else: ?>
+                <div class="rt-box wait"><small><?= e($other) ?>'s rating of you</small><p>You'll see it once they submit theirs.</p></div>
+              <?php endif; ?>
+            </div>
+          <?php endif; ?>
+        </div>
       </section>
+
+      <div class="rt-pay">
+        <div class="d-stat"><small><?= $isComm ? 'Client paid' : 'You paid' ?></small><b><?= e(money($o['price'])) ?></b></div>
+        <div class="d-stat"><small>Platform fee</small><b>−<?= e(money($o['fee'])) ?></b></div>
+        <div class="d-stat hot"><small><?= $isComm ? 'You received' : e($other) . ' got' ?></small><b><?= e(money($payout)) ?></b></div>
+      </div>
+
+      <?php if ($o['final_name']): ?>
+        <section class="panel rt-file">
+          <span class="rt-fi" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5"/></svg></span>
+          <div class="rt-fn"><b><?= e($o['final_name']) ?></b><small>Final file · unlocked after approval</small></div>
+          <a class="btn ghost" href="download.php?id=<?= $id ?>">Download</a>
+        </section>
+      <?php endif; ?>
 
     <?php else: ?>
       <section class="panel panel-pad">
@@ -210,6 +273,34 @@ if ($o['status'] === 'completed') {
     <?php if ($hasChat) echo chat_panel($o, $me['id']); ?>
     </div>
 
+    <?php if ($o['status'] === 'completed'): $tr = trust_score($os); ?>
+    <div class="rt-side">
+      <section class="panel">
+        <h2><?= $isComm ? 'Client' : 'Commissioner' ?></h2>
+        <div class="rt-pc">
+          <div class="d-rep">
+            <div class="d-ring" style="--p:<?= (int)$tr ?>" role="img" aria-label="Trust score <?= (int)$tr ?> out of 100"><b><?= (int)$tr ?></b></div>
+            <div class="rt-nm"><b><a href="profile.php?u=<?= urlencode($other) ?>"><?= e($other) ?></a></b>
+              <span class="chip tier"><?= e($osTier) ?></span><small>Trust score</small></div>
+          </div>
+          <div class="d-kv"><span>Rating</span><b><?= $os['rating_n'] ? e(number_format($os['rating'], 1) . ' (' . $os['rating_n'] . ')') : 'No ratings yet' ?></b></div>
+          <div class="d-kv"><span>Completed orders</span><b><?= (int)$os['completed'] ?></b></div>
+          <?php if (!$isComm): ?><div class="d-kv"><span>On-time</span><b><?= $os['delivered'] ? e(round($os['ontime_pct'] * 100) . '%') : 'No deliveries yet' ?></b></div><?php endif; ?>
+          <?php if ($bd = user_badges($os)): ?><div class="d-chips"><?php foreach ($bd as $b): ?><span class="chip"><?= e($b) ?></span><?php endforeach; ?></div><?php endif; ?>
+        </div>
+      </section>
+      <section class="panel">
+        <h2>Order details</h2>
+        <div class="rt-pc"><dl class="rt-dl">
+          <div><dt>Escrow</dt><dd><?= e($escrow) ?></dd></div>
+          <div><dt>Due</dt><dd><?= e(date('M j, Y g:i A', strtotime($o['deliver_by']))) ?></dd></div>
+          <?php if ($o['delivered_at']): ?><div><dt>Delivered</dt><dd><?= e(date('M j, g:i A', strtotime($o['delivered_at']))) ?></dd></div><?php endif; ?>
+          <?php if ($o['completed_at']): ?><div><dt>Completed</dt><dd><?= e(date('M j, g:i A', strtotime($o['completed_at']))) ?></dd></div><?php endif; ?>
+          <div><dt>Order</dt><dd>#<?= $id ?></dd></div>
+        </dl></div>
+      </section>
+    </div>
+    <?php else: ?>
     <aside class="panel">
       <h2>Order details</h2>
       <div class="profile"><dl>
@@ -231,7 +322,9 @@ if ($o['status'] === 'completed') {
         <?php endif; ?>
       </dl></div>
     </aside>
+    <?php endif; ?>
   </div>
 </main>
 <?php if ($hasChat): ?><script src="<?= BASE_URL ?>assets/js/chat.js" defer></script><?php endif; ?>
+<?php if ($o['status'] === 'completed' && !$myRating): ?><script src="<?= BASE_URL ?>assets/js/rate.js" defer></script><?php endif; ?>
 </body></html>

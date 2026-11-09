@@ -100,20 +100,7 @@ $url = function (array $o = []) use ($tab, $qtext, $sort) {
 };
 $filtered = $qtext !== '' || $tab !== 'all';
 
-function ord_steps($status){
-  $map = ['pending_agree' => ['cur', '', '', ''], 'active' => ['done', 'cur', '', ''],
-          'delivered' => ['done', 'done', 'cur', ''], 'disputed' => ['done', 'done', 'bad', ''],
-          'completed' => ['done', 'done', 'done', 'done']];
-  if (!isset($map[$status])) return '';
-  $note = ['cur' => ' <span class="o-sr">(current step)</span>', 'bad' => ' <span class="o-sr">(disputed)</span>',
-           'done' => ' <span class="o-sr">(done)</span>', '' => ''];
-  $h = '<ol class="o-steps" aria-label="Order progress">';
-  foreach (['Accepted', 'Started', 'Delivered', 'Completed'] as $i => $label) {
-    $s = $map[$status][$i];
-    $h .= '<li' . ($s ? ' class="' . $s . '"' : '') . '>' . e($label) . $note[$s] . '</li>';
-  }
-  return $h . '</ol>';
-}
+function ord_steps($status){ return order_timeline(['status' => $status]); }
 
 $onPage = [true => 0, false => 0];
 foreach ($orders as $o) $onPage[(int)$o['needs_action'] === 1]++;

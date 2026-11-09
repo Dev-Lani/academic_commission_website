@@ -1,0 +1,110 @@
+/* Completed order (order.php): stepper dates, rate card, payment tiles, file row, sidebar.
+   All classes start with rt- so nothing else is affected. */
+:root{--rt-ok-ink:#14603f} /* AA text colour on --ok-bg; same value .alert.ok uses, but no token exists for it */
+
+.rt-time{padding:1rem 1.25rem 1.1rem}
+.rt-steps small{display:block;margin-top:.1rem;font-size:.75rem;font-weight:400;color:var(--muted)}
+.rt-card,.rt-pay,.rt-file{margin-top:1rem}
+
+/* rate card */
+.rt-card{border:2px solid var(--brand);box-shadow:0 0 0 3px rgba(59,75,219,.12);overflow:hidden}
+.rt-card.done{border:1px solid var(--line);box-shadow:none}
+.rt-strip{display:flex;justify-content:space-between;align-items:center;gap:.75rem;padding:.55rem 1.25rem;background:#EEF0FD}
+.rt-card.done .rt-strip{background:var(--ok-bg)}
+.rt-flag{font-size:.75rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--brand-dark)}
+.rt-card.done .rt-flag{color:var(--rt-ok-ink)}
+.rt-left{font-size:.82rem;color:var(--muted);white-space:nowrap}
+.rt-card.done .rt-left{color:var(--rt-ok-ink)}
+.rt-body{padding:1.25rem;display:grid;gap:1.1rem}
+.rt-head{display:flex;gap:.85rem;align-items:center}
+.rt-head h2{margin:0;padding:0;border:0;font-size:1.25rem}
+.rt-head p{margin:.15rem 0 0;font-size:.9rem}
+.rt-av{width:44px;height:44px;border-radius:50%;background:var(--brand);color:#fff;font:700 1.1rem var(--font-d);display:inline-flex;align-items:center;justify-content:center;flex:none}
+.rt-hl{background:linear-gradient(transparent 62%,var(--hl) 62%);padding:0 .15em}
+.rt-form{display:grid;gap:1.1rem}
+.rt-err{margin:0}
+.rt-err[hidden]{display:none}
+
+/* face picker */
+.rt-pick{border:0;margin:0;padding:0;min-width:0}
+.rt-faces{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:.5rem}
+.rt-face{position:relative;display:block;min-width:0}
+.rt-face input{position:absolute;opacity:0;pointer-events:none}
+.rt-tile{display:grid;justify-items:center;gap:.4rem;padding:.8rem .25rem .65rem;border:1.5px solid var(--line);border-radius:10px;background:var(--surface);color:var(--muted);cursor:pointer;transition:border-color .15s,background .15s,color .15s}
+.rt-tile b{font:600 .88rem var(--font-b);color:var(--ink)}
+.rt-tile:hover{border-color:#B6BCD3}
+.rt-face input:checked+.rt-tile{border-color:var(--brand);background:#EEF0FD;box-shadow:inset 0 0 0 1px var(--brand);color:var(--brand-dark)}
+.rt-face input:checked+.rt-tile b{font-weight:700;color:var(--brand-dark)}
+.rt-face input:focus-visible+.rt-tile{outline:3px solid var(--brand);outline-offset:2px}
+
+/* quick tags */
+.rt-tags{display:flex;flex-wrap:wrap;align-items:center;gap:.4rem}
+.rt-add{font-size:.85rem;color:var(--muted);margin-right:.1rem}
+.rt-tags .qk[aria-pressed=true]{border-style:solid;border-color:var(--brand);background:#EEF0FD;font-weight:600}
+
+/* comment */
+.rt-cm{margin:0}
+.rt-hint{display:flex;justify-content:space-between;gap:1rem}
+.rt-hint.warn{color:var(--bad);font-weight:600}
+#rt-count{white-space:nowrap}
+
+/* live preview */
+.rt-prev{border:1.5px dashed var(--line);border-radius:10px;background:var(--paper);padding:.8rem 1rem;display:grid;gap:.5rem}
+.rt-prev>small{color:var(--muted);font-size:.8rem}
+.rt-pv-top{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap}
+.rt-pv-face{width:28px;height:28px;border-radius:50%;border:1.5px dashed #B6BCD3;color:var(--brand-dark);display:inline-flex;align-items:center;justify-content:center;flex:none}
+.rt-pv-face svg{width:28px;height:28px;flex:none}
+.rt-pv-face:has(svg){border:0}
+.rt-pv-text{margin:0;font-size:.92rem;white-space:pre-wrap;overflow-wrap:anywhere}
+.rt-pv-text.rt-empty{color:var(--muted)}
+.rt-form:not(.rt-js) .rt-tags,.rt-form:not(.rt-js) .rt-prev{visibility:hidden} /* inert without JS; keeps the space so nothing shifts */
+
+.rt-form .btn{width:auto;justify-self:start;min-height:44px;padding:0 1.5rem}
+
+/* after rating */
+.rt-done{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.rt-box{border:1px solid var(--line);border-radius:10px;padding:.9rem 1rem;display:grid;gap:.4rem;align-content:start;min-width:0}
+.rt-box small{color:var(--muted)}
+.rt-bx-top{display:flex;align-items:center;gap:.5rem;color:var(--brand-dark)}
+.rt-bx-top b{color:var(--ink)}
+.rt-box p{margin:0;font-size:.92rem;overflow-wrap:anywhere}
+.rt-box.wait{background:#F8F9FD;border-style:dashed}
+.rt-box.wait p{color:var(--muted)}
+
+/* payment tiles: only the last one is emphasised (.d-stat.hot comes from dash.css) */
+.rt-pay{display:grid;grid-template-columns:1fr 1fr 1.35fr;gap:.75rem}
+.rt-pay .d-stat{min-width:0}
+.rt-pay .d-stat b{font:600 20px/1.3 var(--font-d);color:var(--muted);overflow-wrap:anywhere}
+.rt-pay .d-stat.hot b{font:700 26px/1.2 var(--font-d);color:var(--hl)}
+
+/* file row */
+.rt-file{display:flex;align-items:center;gap:.8rem;padding:.7rem 1rem;flex-wrap:wrap}
+.rt-fi{width:36px;height:36px;border-radius:8px;background:#EDEFF6;color:var(--muted);display:inline-flex;align-items:center;justify-content:center;flex:none}
+.rt-fn{flex:1 1 10rem;min-width:0}
+.rt-fn b{display:block;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rt-fn small{color:var(--muted)}
+
+/* sidebar */
+.rt-side{display:grid;gap:1rem;align-content:start}
+.rt-pc{padding:.9rem;display:grid;gap:.75rem}
+.rt-nm{min-width:0;display:grid;justify-items:start;gap:.15rem}
+.rt-nm b{overflow-wrap:anywhere}
+.rt-dl{margin:0;display:grid;gap:.55rem}
+.rt-dl div{display:flex;justify-content:space-between;gap:.75rem;font-size:.9rem}
+.rt-dl dt{color:var(--muted)}
+.rt-dl dd{margin:0;font-weight:500;text-align:right}
+
+@media (max-width:560px){
+  .rt-pay{grid-template-columns:1fr}
+  .rt-done{grid-template-columns:1fr}
+  .rt-form .btn{width:100%}
+}
+@media (max-width:520px){
+  .rt-body{padding:.85rem}
+  .rt-strip{padding:.5rem .85rem}
+  .rt-faces{gap:.25rem}
+  .rt-tile{padding:.65rem 0 .55rem}
+  .rt-tile .rt-ico{width:28px;height:28px}
+  .rt-tile b{font-size:12px}
+}
+@media (prefers-reduced-motion:reduce){.rt-tile{transition:none}}
