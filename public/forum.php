@@ -190,12 +190,14 @@ function hidden_fields($vals){
         <?php if ($page < $pages): ?><a class="fcl" href="<?= e($url(['page' => $page + 1])) ?>">Next ›</a><?php endif; ?>
       </nav>
       <?php endif; ?>
+
+      <section class="panel panel-pad" style="margin-top:.75rem">
+        <h2>How it works</h2>
+        <p class="muted" style="margin:0;font-size:.9rem">Clients post requests. Commissioners reply with private offers. Payment stays in escrow until you approve the work.</p>
+      </section>
     </div>
 
     <aside class="f-side">
-      <?php if ($me['role'] === 'client'): ?>
-        <a class="btn" href="create_post.php<?= $subject ? '?s=' . e($slug) : '' ?>">+ New request</a>
-      <?php endif; ?>
       <form class="panel" method="get" action="forum.php" onchange="this.submit()">
         <h2>Filters</h2>
         <?php hidden_fields(['s' => $cur['s'], 'q' => $qtext, 'sort' => $cur['sort'], 'view' => $cur['view']]); ?>
@@ -219,10 +221,6 @@ function hidden_fields($vals){
         <?php if ($filtered): ?><a href="<?= e($url(['q' => '', 'type' => '', 'budget' => '', 'due' => ''])) ?>">Clear filters</a><?php endif; ?>
         <noscript><button class="btn sm">Apply</button></noscript>
       </form>
-      <section class="panel">
-        <h2>How it works</h2>
-        <p class="muted" style="margin:0;font-size:.9rem">Clients post requests. Commissioners reply with private offers. Payment stays in escrow until you approve the work.</p>
-      </section>
     </aside>
   </div>
 </main>

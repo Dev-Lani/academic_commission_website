@@ -1,5 +1,3 @@
-// Floating Messages bubble: chat list, and chat threads without leaving the page.
-// Uses chat_list.php (list) and chat.php (poll + send), which already exist.
 (function () {
   var root = document.getElementById('mb');
   if (!root) return;
@@ -31,7 +29,6 @@
   }
   function initial(s) { return (s || '?').charAt(0).toUpperCase(); }
 
-  /* ---------- list ---------- */
   function loadList() {
     return api('chat_list.php').then(function (d) {
       if (!d) return;
