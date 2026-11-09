@@ -4,7 +4,7 @@
 $unread     = unread_count($me['id']);
 $unreadMsgs = messages_unread($me['id']);
 $path    = $_SERVER['SCRIPT_NAME'] ?? '';
-$page    = basename($path);
+$navPage = basename($path);
 $inAdmin = strpos($path, '/admin/') !== false;
 
 $links = [
@@ -36,7 +36,7 @@ $sbSubjects = cache_remember('forum_subjects', 30, fn() => $pdo->query("SELECT s
   GROUP BY s.id ORDER BY s.name")->fetchAll());
 usort($sbSubjects, fn($a, $b) => $b['n'] <=> $a['n']);
 $sbSubjects = array_slice($sbSubjects, 0, 8);
-$sbSlug = ($page === 'forum.php' && is_string($_GET['s'] ?? null)) ? $_GET['s'] : '';
+$sbSlug = ($navPage === 'forum.php' && is_string($_GET['s'] ?? null)) ? $_GET['s'] : '';
 
 // Latest notifications for the bell dropdown
 $nq = $pdo->prepare('SELECT n.type, n.is_read, n.order_id, p.id AS pid, p.title
@@ -105,7 +105,7 @@ $noteLabels = ['offer' => 'New offers on', 'accepted' => 'Offer accepted on', 'a
   </button>
   <nav class="sb" aria-label="Main">
     <?php foreach ($links as [$href, $label, $lkPages, $ic]):
-      $on = $href === 'admin/' ? $inAdmin : (!$inAdmin && in_array($page, $lkPages, true)); ?>
+      $on = $href === 'admin/' ? $inAdmin : (!$inAdmin && in_array($navPage, $lkPages, true)); ?>
       <a class="sb-it<?= $on ? ' on' : '' ?>" href="<?= BASE_URL . $href ?>" title="<?= e($label) ?>"<?= $on ? ' aria-current="page"' : '' ?>>
         <?= $sbIco($ic) ?><span class="lbl"><?= e($label) ?></span>
         <?php if ($href === 'messages.php' && $unreadMsgs): ?><span class="badge"><?= (int)$unreadMsgs ?></span><?php endif; ?>
