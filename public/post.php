@@ -16,6 +16,13 @@ if (!$p) { http_response_code(404); echo 'Request not found. <a href="forum.php"
 $mine   = $p['user_id'] == $me['id'];
 $isComm = $me['role'] === 'commissioner';
 
+// recently viewed (commissioners lang, hindi sariling post)
+if ($isComm && !$mine) {
+  $rv = array_diff($_SESSION['recent'] ?? [], [$id]);
+  array_unshift($rv, $id);
+  $_SESSION['recent'] = array_slice(array_values($rv), 0, 5);
+}
+
 // binuksan ng may-ari ang post = basa na ang notification
 if ($mine) $pdo->prepare('UPDATE notifications SET is_read=1 WHERE user_id=? AND post_id=?')->execute([$me['id'], $id]);
 

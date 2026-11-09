@@ -2,6 +2,11 @@
 require dirname(__DIR__) . '/src/bootstrap.php';
 $me = require_login();
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clear_recent']) && csrf_ok()) {
+  unset($_SESSION['recent']);
+  header('Location: forum.php'); exit;
+}
+
 const PER_PAGE = 15;
 $sorts = ['top' => 'Top', 'new' => 'New', 'urgent' => 'Urgent', 'offers' => 'Most offers', 'none' => 'No offers yet'];
 $g = fn($k) => is_string($_GET[$k] ?? null) ? trim($_GET[$k]) : '';
@@ -34,6 +39,30 @@ $urgentCount = cache_remember('forum_urgent', 30, function () use ($pdo, $now, $
   $c->execute([$now, $soon]);
   return (int)$c->fetchColumn();
 });
+
+/* ---------- right rail (commissioners) ---------- */
+$recent = []; $urgentList = [];
+if ($me['role'] === 'commissioner') {
+  if (!empty($_SESSION['recent'])) {
+    $ids = array_values(array_unique(array_map('intval', $_SESSION['recent'])));
+    $ph  = implode(',', array_fill(0, count($ids), '?'));
+    $q = $pdo->prepare("SELECT p.id, p.title, p.budget_min, p.budget_max, p.deadline,
+        (SELECT COUNT(*) FROM offers o WHERE o.post_id=p.id) AS n
+      FROM posts p WHERE p.status='open' AND p.id IN ($ph)");
+    $q->execute($ids);
+    $byId = array_column($q->fetchAll(), null, 'id');
+    foreach ($ids as $i) if (isset($byId[$i])) $recent[] = $byId[$i]; // pinakabago muna
+  }
+  $urgentList = cache_remember('forum_urgent_list', 30, function () use ($pdo, $now, $soon) {
+    $c = $pdo->prepare("SELECT p.id, p.title, p.budget_min, p.budget_max, p.deadline,
+        (SELECT COUNT(*) FROM offers o WHERE o.post_id=p.id) AS n
+      FROM posts p WHERE p.status='open' AND p.deadline > ? AND p.deadline <= ?
+      ORDER BY p.deadline ASC LIMIT 3");
+    $c->execute([$now, $soon]);
+    return $c->fetchAll();
+  });
+}
+$showRail = $recent || $urgentList;
 
 /* ---------- filters ---------- */
 $where = ["p.status='open'"]; $params = [];
@@ -100,6 +129,21 @@ function time_ago($ts){
 function hidden_fields($vals){
   foreach ($vals as $k => $v) if ($v !== '') echo '<input type="hidden" name="' . e($k) . '" value="' . e($v) . '">';
 }
+// [css class, text] para sa gilid ng bawat row sa right rail
+function rail_meta($r){
+  $left = strtotime($r['deadline']) - time();
+  if ($left > 0 && $left <= 172800) {
+    $t = $left < 3600 ? floor($left / 60) . 'm left' : ($left < 86400 ? floor($left / 3600) . 'h left' : floor($left / 86400) . 'd left');
+    return ['hot', $t];
+  }
+  return [$r['n'] ? 'ok' : '', $r['n'] ? plural((int)$r['n'], 'offer', 'offers') : 'No offers'];
+}
+function rail_rows($rows){
+  foreach ($rows as $r): [$cls, $txt] = rail_meta($r); ?>
+    <a class="rail-row" href="post.php?id=<?= (int)$r['id'] ?>"><b><?= e($r['title']) ?></b>
+      <small><span><?= e(money($r['budget_min']) . ' – ' . money($r['budget_max'])) ?></span><span class="<?= $cls ?>"><?= e($txt) ?></span></small></a>
+  <?php endforeach;
+}
 ?>
 <!doctype html>
 <html lang="en"><head><title>Forum · Academic Commission</title><?php include TEMPLATE_PATH . 'head.php'; ?>
@@ -125,7 +169,7 @@ function hidden_fields($vals){
     <?php endforeach; ?>
   </nav>
 
-  <div class="fl">
+  <div class="fl<?= $showRail ? ' has-rail' : '' ?>">
     <div>
       <?php if ($urgentCount && $sort !== 'urgent'): ?>
         <div class="f-urgent"><b><?= e(plural($urgentCount, 'urgent request', 'urgent requests')) ?></b>
@@ -196,6 +240,25 @@ function hidden_fields($vals){
         <p class="muted" style="margin:0;font-size:.9rem">Clients post requests. Commissioners reply with private offers. Payment stays in escrow until you approve the work.</p>
       </section>
     </div>
+
+    <?php if ($showRail): ?>
+    <aside class="f-rail" aria-label="Shortcuts">
+      <?php if ($recent): ?>
+      <section class="rail-card">
+        <h2>Recently viewed
+          <form method="post"><input type="hidden" name="csrf" value="<?= csrf_token() ?>">
+            <button class="rail-clear" name="clear_recent" value="1">Clear</button></form></h2>
+        <?php rail_rows($recent); ?>
+      </section>
+      <?php endif; ?>
+      <?php if ($urgentList): ?>
+      <section class="rail-card">
+        <h2>Urgent now <a href="<?= e($url(['sort' => 'urgent'])) ?>">See all</a></h2>
+        <?php rail_rows($urgentList); ?>
+      </section>
+      <?php endif; ?>
+    </aside>
+    <?php endif; ?>
 
     <aside class="f-side">
       <form class="panel" method="get" action="forum.php" onchange="this.submit()">
