@@ -1,0 +1,44 @@
+/* Notifications (inbox.php). All classes start with nt- so nothing else is affected. */
+.nt-head{display:flex;justify-content:space-between;align-items:flex-end;gap:1rem;flex-wrap:wrap}
+.nt-pill{display:inline-flex;align-items:center;gap:.4rem;padding:.25rem .75rem;border-radius:99px;background:var(--ink);color:#fff;font-size:.85rem;font-weight:600}
+.nt-pill i{font-style:normal;color:var(--hl)}
+.nt-pill.zero{background:#EDEFF6;color:var(--muted)}
+
+.nt-filters{display:flex;gap:.5rem;overflow-x:auto;padding-bottom:.4rem;margin-bottom:1rem}
+
+.nt-day{display:flex;justify-content:space-between;align-items:baseline;gap:.75rem;margin:1.25rem 0 .5rem}
+.nt-day:first-of-type{margin-top:0}
+.nt-day h2{margin:0;font-size:1rem}
+.nt-day span{font-size:.82rem;color:var(--muted)}
+
+.nt-list{list-style:none;margin:0;padding:0;background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.nt-row{display:grid;grid-template-columns:auto 1fr auto;gap:.9rem;align-items:center;padding:.85rem 1rem;min-width:0}
+.nt-row+.nt-row{border-top:1px solid #EDEFF6}
+.nt-row.unread{background:#F6F7FE;box-shadow:inset 3px 0 0 var(--brand)}
+.nt-row:hover{background:#F8F9FD}
+.nt-row.unread:hover{background:#EEF0FD}
+
+.nt-ic{position:relative;width:40px;height:40px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;flex:none;background:#EDEFF6;color:var(--muted)}
+.nt-ic.offer{background:#EEF0FD;color:var(--brand)}
+.nt-ic.good{background:var(--ok-bg);color:var(--ok)}
+.nt-ic.warn{background:#FFF4C2;color:#6b5600}
+.nt-ic.bad{background:var(--bad-bg);color:var(--bad)}
+.nt-row.unread .nt-ic::after{content:"";position:absolute;top:-1px;right:-1px;width:11px;height:11px;border-radius:50%;background:var(--bad);border:2px solid #F6F7FE}
+
+.nt-b{min-width:0;display:grid;gap:.1rem}
+.nt-b b{font-weight:600;overflow-wrap:anywhere}
+.nt-row:not(.unread) .nt-b b{font-weight:500}
+.nt-b small{color:var(--muted);font-size:.86rem;overflow-wrap:anywhere}
+.nt-b time{color:var(--muted);font-size:.78rem}
+.nt-row .btn{width:auto;min-height:40px;display:inline-flex;align-items:center;justify-content:center;padding:0 1rem;white-space:nowrap}
+
+.nt-empty{padding:2.5rem 1.25rem;text-align:center;display:grid;justify-items:center;gap:.5rem}
+.nt-empty h2{margin:0;padding:0;border:0}
+.nt-empty p{margin:0 0 .5rem;color:var(--muted);max-width:36ch}
+.nt-empty .btn{width:auto}
+
+@media (max-width:560px){
+  .nt-row{grid-template-columns:auto 1fr;gap:.7rem;padding:.75rem .8rem}
+  .nt-ic{width:36px;height:36px}
+  .nt-row .btn{grid-column:1/-1;width:100%}
+}
