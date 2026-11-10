@@ -6,16 +6,27 @@
       form = document.getElementById('chat-form'),
       order = box.dataset.order,
       last = parseInt(box.dataset.last, 10) || 0,
-      busy = false;
+      busy = false,
+      lastDay = box.dataset.day || '';
 
   function nearBottom() { return log.scrollHeight - log.scrollTop - log.clientHeight < 80; }
   function toBottom() { log.scrollTop = log.scrollHeight; }
 
   function add(m) {
     if (log.querySelector('[data-id="' + m.id + '"]')) return;
+    if (m.day && m.day !== lastDay) { // day separator
+      var sep = document.createElement('li');
+      sep.className = 'chat-day'; sep.setAttribute('role', 'separator'); sep.textContent = m.dayLabel;
+      log.appendChild(sep);
+      lastDay = m.day;
+    }
+    var all = log.querySelectorAll('li.msg'), prev = all[all.length - 1];
+    var cont = !!prev && prev.dataset.day === m.day && prev.dataset.mine === (m.mine ? '1' : '0')
+      && m.ts - parseInt(prev.dataset.ts, 10) <= 300; // same sender within 5 min = grouped
     var li = document.createElement('li');
-    li.className = 'msg ' + (m.mine ? 'mine' : 'theirs');
-    li.dataset.id = m.id;
+    li.className = 'msg ' + (m.mine ? 'mine' : 'theirs') + (cont ? ' cont' : '');
+    li.dataset.id = m.id; li.dataset.day = m.day; li.dataset.ts = m.ts; li.dataset.mine = m.mine ? '1' : '0';
+    if (cont) prev.classList.add('cont-next');
     var b = document.createElement('div'); b.className = 'bubble'; b.textContent = m.body;
     var s = document.createElement('small'); s.textContent = (m.mine ? 'You' : m.name) + ' · ' + m.time;
     li.appendChild(b); li.appendChild(s);
