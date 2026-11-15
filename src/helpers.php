@@ -14,9 +14,34 @@ function here(){
   return basename($_SERVER['PHP_SELF']) . ($qs !== '' ? '?' . $qs : '');
 }
 
+// Types of work, in two groups. "School work" is what the site was built for; "Everyday tasks" are the
+// other small jobs people also post here (welcome, but school work stays the main focus).
+// Keep every type name at 30 characters or fewer: posts.type is VARCHAR(30).
+function post_type_groups(){
+  return [
+    'academic' => ['label' => 'School work', 'types' => [
+      'Essay','Research paper','Thesis chapter','Editing / proofreading','Reflection paper',
+      'Case study','Report','Presentation (PPT)','Programming project','Problem set','Other']],
+    'general'  => ['label' => 'Everyday tasks', 'types' => [
+      'Design / graphics','Tutoring / coaching','Data entry / encoding','Translation',
+      'Tech help','Event help','Errand / pickup','Other task']],
+  ];
+}
+
+// Flat list of every type (used for validation and the forum filter).
 function post_types(){
-  return ['Essay','Research paper','Thesis chapter','Editing / proofreading','Reflection paper',
-          'Case study','Report','Presentation (PPT)','Programming project','Problem set','Other'];
+  return array_merge(...array_column(post_type_groups(), 'types'));
+}
+
+// 'academic' or 'general', worked out from the type. Posts made before this feature are all academic.
+function task_kind($type){
+  return in_array($type, post_type_groups()['general']['types'], true) ? 'general' : 'academic';
+}
+
+// "5 pages" for school work, "1 item" for everyday tasks.
+function size_label($p){
+  $n = (int)$p['pages'];
+  return task_kind($p['type']) === 'general' ? plural($n, 'item', 'items') : plural($n, 'page', 'pages');
 }
 
 function money($n){ return '₱' . number_format((int)$n); }
@@ -88,4 +113,29 @@ function order_timeline($o){
     $h .= '<li' . ($s ? ' class="' . $s . '"' : '') . '>' . e($label) . $note[$s] . $d . '</li>';
   }
   return $h . '</ol>';
+}
+
+
+/* ---------- Saved requests (bookmarks) ---------- */
+
+// Of these post ids, which has this user saved? Returns [post_id => true].
+function saved_map($uid, array $postIds){
+  global $pdo;
+  $ids = array_values(array_unique(array_map('intval', $postIds)));
+  if (!$ids) return [];
+  $q = $pdo->prepare('SELECT post_id FROM bookmarks WHERE user_id=? AND post_id IN (' . implode(',', array_fill(0, count($ids), '?')) . ')');
+  $q->execute(array_merge([(int)$uid], $ids));
+  return array_fill_keys(array_map('intval', $q->fetchAll(PDO::FETCH_COLUMN)), true);
+}
+
+// The Save / Saved button. $back must be a forum.php, post.php or saved.php address (bookmark.php checks it).
+function save_button($postId, $isSaved, $back){
+  return '<form method="post" action="bookmark.php" class="save-form">'
+       . '<input type="hidden" name="csrf" value="' . csrf_token() . '">'
+       . '<input type="hidden" name="post_id" value="' . (int)$postId . '">'
+       . '<input type="hidden" name="to" value="' . ($isSaved ? '0' : '1') . '">'
+       . '<input type="hidden" name="back" value="' . e($back) . '">'
+       . '<button class="save-btn' . ($isSaved ? ' on' : '') . '" aria-pressed="' . ($isSaved ? 'true' : 'false') . '"'
+       . ' title="' . ($isSaved ? 'Remove from your saved requests' : 'Save this request for later') . '">'
+       . '<span aria-hidden="true">' . ($isSaved ? '★' : '☆') . '</span> ' . ($isSaved ? 'Saved' : 'Save') . '</button></form>';
 }

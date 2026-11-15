@@ -15,6 +15,7 @@ $sort   = array_key_exists($g('sort'), $sorts) ? $g('sort') : 'top';
 $view   = $g('view') === 'compact' ? 'compact' : 'cards';
 $qtext  = mb_substr($g('q'), 0, 80);
 $type   = in_array($g('type'), post_types(), true) ? $g('type') : '';
+$kind   = in_array($g('kind'), ['academic', 'general'], true) ? $g('kind') : '';
 $budget = in_array($g('budget'), ['low', 'mid', 'high'], true) ? $g('budget') : '';
 $due    = in_array($g('due'), ['48h', 'week'], true) ? $g('due') : '';
 $slug   = $g('s');
@@ -73,6 +74,11 @@ if ($qtext !== '') {
   $params[':q1'] = $like; $params[':q2'] = $like;
 }
 if ($type !== '') { $where[] = 'p.type=:type'; $params[':type'] = $type; }
+if ($kind !== '') { // school work vs everyday tasks: match every type in that group
+  $ph = [];
+  foreach (post_type_groups()[$kind]['types'] as $i => $t) { $ph[] = ':k' . $i; $params[':k' . $i] = $t; }
+  $where[] = 'p.type IN (' . implode(',', $ph) . ')';
+}
 if ($budget === 'low')  $where[] = 'p.budget_min < 500';
 if ($budget === 'mid')  $where[] = 'p.budget_min BETWEEN 500 AND 1499';
 if ($budget === 'high') $where[] = 'p.budget_min >= 1500';
@@ -106,9 +112,10 @@ $q = $pdo->prepare("SELECT p.*, (SELECT COUNT(*) FROM offers o WHERE o.post_id=p
   WHERE $whereSql ORDER BY $order LIMIT " . PER_PAGE . " OFFSET $off");
 $q->execute($params + [':me' => $me['id']]);
 $posts = $q->fetchAll();
+$saved = $me['role'] === 'commissioner' ? saved_map($me['id'], array_column($posts, 'id')) : []; // ids this commissioner saved
 
 /* ---------- urls ---------- */
-$cur = ['s' => $subject ? $slug : '', 'q' => $qtext, 'type' => $type, 'budget' => $budget, 'due' => $due,
+$cur = ['s' => $subject ? $slug : '', 'q' => $qtext, 'type' => $type, 'kind' => $kind, 'budget' => $budget, 'due' => $due,
         'sort' => $sort === 'top' ? '' : $sort, 'view' => $view === 'cards' ? '' : $view, 'page' => ''];
 $url = function (array $o = []) use ($cur) {
   $a = array_filter(array_merge($cur, $o), fn($v) => $v !== '' && $v !== null);
@@ -155,7 +162,7 @@ function rail_rows($rows){
   <div class="f-top">
     <h1><?= $subject ? e($subject['name']) : 'Forum' ?></h1>
     <form class="f-search" method="get" action="forum.php" role="search">
-      <?php hidden_fields(['s' => $cur['s'], 'type' => $type, 'budget' => $budget, 'due' => $due, 'sort' => $cur['sort'], 'view' => $cur['view']]); ?>
+      <?php hidden_fields(['s' => $cur['s'], 'type' => $type, 'kind' => $kind, 'budget' => $budget, 'due' => $due, 'sort' => $cur['sort'], 'view' => $cur['view']]); ?>
       <input type="text" name="q" value="<?= e($qtext) ?>" maxlength="80" placeholder="Search requests or keywords" aria-label="Search requests">
       <button class="btn sm">Search</button>
     </form>
@@ -171,6 +178,12 @@ function rail_rows($rows){
 
   <div class="fl<?= $showRail ? ' has-rail' : '' ?>">
     <div>
+      <div class="f-kind" role="group" aria-label="Kind of task">
+        <?php foreach (['' => 'All tasks', 'academic' => 'School work', 'general' => 'Everyday tasks'] as $k => $label): ?>
+          <a class="fcl<?= $kind === $k ? ' on' : '' ?>" href="<?= e($url(['kind' => $k])) ?>"><?= e($label) ?></a>
+        <?php endforeach; ?>
+      </div>
+
       <?php if ($urgentCount && $sort !== 'urgent'): ?>
         <div class="f-urgent"><b><?= e(plural($urgentCount, 'urgent request', 'urgent requests')) ?></b>
           <span class="muted">due within 48 hours. Early offers win.</span>
@@ -203,6 +216,7 @@ function rail_rows($rows){
           <div class="rq-main">
             <div class="rq-kicker">
               <span><?= e($p['subject']) ?></span><span aria-hidden="true">·</span><span><?= e($p['type']) ?></span>
+              <?php if (task_kind($p['type']) === 'general'): ?><span class="kchip">Everyday task</span><?php endif; ?>
               <span class="age">· <?= e(time_ago($p['created_at'])) ?></span>
               <?php if ($urgent): ?><span class="tag urgent" data-prefix="Urgent: " data-deadline="<?= e(date('c', strtotime($p['deadline']))) ?>">Urgent</span><?php endif; ?>
             </div>
@@ -210,7 +224,7 @@ function rail_rows($rows){
             <p class="rq-excerpt"><?= e(mb_strimwidth(preg_replace('/\s+/', ' ', $p['description']), 0, 160, '…')) ?></p>
             <div class="rq-foot">
               <span class="pill<?= $p['offer_count'] ? ' ok' : '' ?>"><?= $p['offer_count'] ? e(plural((int)$p['offer_count'], 'offer', 'offers')) : 'No offers yet' ?></span>
-              <span><?= (int)$p['pages'] ?> <?= $p['pages'] == 1 ? 'page' : 'pages' ?></span>
+              <span><?= e(size_label($p)) ?></span>
               <span>by <b><?= e($p['username']) ?></b></span>
               <span class="chip"><?= e($p['tier']) ?></span>
               <?php if ($p['is_verified']): ?><span class="pill ok">Verified</span><?php endif; ?>
@@ -219,7 +233,10 @@ function rail_rows($rows){
           <div class="rq-side">
             <div class="rq-budget"><small>Budget</small><?= money($p['budget_min']) ?> – <?= money($p['budget_max']) ?></div>
             <div class="rq-due<?= $urgent ? ' hot' : '' ?>"><small>Due</small><?= e(date('M j, g:i A', strtotime($p['deadline']))) ?></div>
-            <a class="btn ghost" href="post.php?id=<?= (int)$p['id'] ?>"><?= $me['role'] === 'commissioner' ? 'View &amp; offer' : 'View' ?></a>
+            <div class="rq-act">
+              <a class="btn ghost" href="post.php?id=<?= (int)$p['id'] ?>"><?= $me['role'] === 'commissioner' ? 'View &amp; offer' : 'View' ?></a>
+              <?php if ($me['role'] === 'commissioner') echo save_button($p['id'], isset($saved[(int)$p['id']]), $here); ?>
+            </div>
           </div>
         </article>
       <?php endforeach; ?>
@@ -263,11 +280,15 @@ function rail_rows($rows){
     <aside class="f-side">
       <form class="panel" method="get" action="forum.php" onchange="this.submit()">
         <h2>Filters</h2>
-        <?php hidden_fields(['s' => $cur['s'], 'q' => $qtext, 'sort' => $cur['sort'], 'view' => $cur['view']]); ?>
+        <?php hidden_fields(['s' => $cur['s'], 'q' => $qtext, 'kind' => $kind, 'sort' => $cur['sort'], 'view' => $cur['view']]); ?>
         <label class="lbl" for="f-type">Type of work</label>
         <select id="f-type" name="type">
           <option value="">Any type</option>
-          <?php foreach (post_types() as $t): ?><option<?= $type === $t ? ' selected' : '' ?>><?= e($t) ?></option><?php endforeach; ?>
+          <?php foreach (post_type_groups() as $tg): ?>
+            <optgroup label="<?= e($tg['label']) ?>">
+              <?php foreach ($tg['types'] as $t): ?><option<?= $type === $t ? ' selected' : '' ?>><?= e($t) ?></option><?php endforeach; ?>
+            </optgroup>
+          <?php endforeach; ?>
         </select>
         <span class="lbl">Budget (minimum)</span>
         <div class="f-chips">

@@ -69,6 +69,7 @@ $dv = $f['deliver_by'] ? date('Y-m-d\TH:i', strtotime($f['deliver_by'])) : '';
     <p><a href="forum.php?s=<?= e($p['slug']) ?>"><?= e($p['subject']) ?></a></p>
     <h1><?= e($p['title']) ?></h1>
     <p><?= e(plural($offerCount, 'offer', 'offers')) ?> so far</p>
+    <?php if ($isComm && !$mine): $sv = saved_map($me['id'], [$id]); echo save_button($id, isset($sv[$id]), here()); endif; ?>
   </div>
 
   <?php if ($msg === 'sent'): ?><div class="alert ok">Offer sent. Only the client can see it.</div><?php endif; ?>
@@ -170,7 +171,8 @@ $dv = $f['deliver_by'] ? date('Y-m-d\TH:i', strtotime($f['deliver_by'])) : '';
       <div class="profile"><dl>
         <div><dt>Status</dt><dd><?= e(ucfirst(str_replace('_', ' ', $p['status']))) ?></dd></div>
         <div><dt>Type of work</dt><dd><?= e($p['type']) ?></dd></div>
-        <div><dt>Pages</dt><dd><?= (int)$p['pages'] ?></dd></div>
+        <div><dt>Kind</dt><dd><?= task_kind($p['type']) === 'general' ? 'Everyday task' : 'School work' ?></dd></div>
+        <div><dt>Size</dt><dd><?= e(size_label($p)) ?></dd></div>
         <div><dt>Budget</dt><dd><?= money($p['budget_min']) ?> to <?= money($p['budget_max']) ?></dd></div>
         <div><dt>Deadline</dt><dd><?= e(date('M j, Y g:i A', strtotime($p['deadline']))) ?><br>
           <span class="<?= is_urgent($p) ? 'tag urgent' : 'tag' ?>" data-deadline="<?= e(date('c', strtotime($p['deadline']))) ?>">Deadline</span></dd></div>

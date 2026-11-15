@@ -14,9 +14,12 @@ $links = [
   ['messages.php',     'Messages',     ['messages.php'], 'msg'],
   ['transactions.php', 'Transactions', ['transactions.php'], 'tx'],
 ];
+// Commissioners get a "Saved" page right after Forum.
+if ($me['role'] === 'commissioner') array_splice($links, 2, 0, [['saved.php', 'Saved', ['saved.php'], 'bookmark']]);
 if ($me['role'] === 'admin') $links[] = ['admin/', 'Admin', [], 'shield'];
 
 $sbIcons = [
+  'bookmark' => '<path d="M6 3h12v18l-6-4-6 4z"/>',
   'home'   => '<path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>',
   'forum'  => '<path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/>',
   'orders' => '<path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5"/>',

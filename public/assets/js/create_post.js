@@ -71,7 +71,8 @@
     $('pv-kick').textContent = (sub ? sub.nextElementSibling.textContent : 'Subject') + ' · ' + (typ ? typ.value : 'Type');
     $('pv-title').textContent = t || 'Your title appears here';
     var meta = [];
-    if (pg) meta.push(pg + (pg === 1 ? ' page' : ' pages'));
+    var everyday = typ && typ.dataset.kind === 'general'; // everyday tasks count items, school work counts pages
+    if (pg) meta.push(pg + (everyday ? (pg === 1 ? ' item' : ' items') : (pg === 1 ? ' page' : ' pages')));
     if (min >= 1 && max >= 1) meta.push(money(min) + ' – ' + money(max));
     if (when && !isNaN(when)) meta.push('Due ' + when.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
     $('pv-meta').textContent = meta.join(' · ');

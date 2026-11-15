@@ -70,17 +70,20 @@ if ($old['pages'] === '') $old['pages'] = '5';
           </div></div>
 
         <div><span class="lbl">Type of work</span>
-          <div class="cf-chips">
-            <?php foreach ($types as $t): ?>
-              <label class="fc"><input type="radio" name="type" value="<?= e($t) ?>"<?= $old['type'] === $t ? ' checked' : '' ?>><span><?= e($t) ?></span></label>
-            <?php endforeach; ?>
-          </div></div>
+          <?php foreach (post_type_groups() as $kindKey => $grp): ?>
+            <p class="cf-group"><?= e($grp['label']) ?></p>
+            <div class="cf-chips">
+              <?php foreach ($grp['types'] as $t): ?>
+                <label class="fc"><input type="radio" name="type" value="<?= e($t) ?>" data-kind="<?= e($kindKey) ?>"<?= $old['type'] === $t ? ' checked' : '' ?>><span><?= e($t) ?></span></label>
+              <?php endforeach; ?>
+            </div>
+          <?php endforeach; ?></div>
       </section>
 
       <section class="panel cf-sec">
         <div class="cf-sh"><span class="n">2</span><h3>Deadline, size and budget</h3></div>
         <div class="cf-row">
-          <div><label class="lbl" for="pages">Pages</label>
+          <div><label class="lbl" for="pages">Pages / items</label>
             <div class="cf-step">
               <button type="button" class="btn ghost" data-step="-1" aria-label="Fewer pages">−</button>
               <input type="number" id="pages" name="pages" min="1" max="500" value="<?= e($old['pages']) ?>" required>

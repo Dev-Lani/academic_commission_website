@@ -1,0 +1,32 @@
+/* New features: everyday tasks (kind chip, forum tabs, form headings) and saved requests */
+
+/* "Everyday task" chip */
+.kchip{display:inline-flex;align-items:center;padding:.05rem .55rem;border-radius:99px;font-size:.7rem;font-weight:600;letter-spacing:0;text-transform:none;background:#E8F2FF;color:#1F5FA8}
+
+/* School work / Everyday tasks tabs above the forum feed */
+.f-kind{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:.75rem}
+
+/* New request form: small headings above each group of type chips */
+.cf-group{margin:.2rem 0 .4rem;font-size:.8rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.cf-group:not(:first-of-type){margin-top:.8rem}
+
+/* Save / Saved button */
+.save-form{margin:0;display:inline-block}
+.save-btn{display:inline-flex;align-items:center;gap:.3rem;min-height:32px;padding:0 .75rem;border:1px solid var(--line);border-radius:99px;background:var(--surface);color:var(--muted);font:500 .85rem var(--font-b);cursor:pointer;white-space:nowrap}
+.save-btn:hover{border-color:#B6BCD3;color:var(--ink)}
+.save-btn.on{background:var(--hl);border-color:#E6C84C;color:#4a3d00}
+.rq-act{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;justify-content:flex-end}
+.page-head .save-form{margin-top:.75rem}
+
+/* Saved requests page */
+.sv-list{display:grid;gap:.7rem}
+.sv-card{display:flex;gap:1rem;justify-content:space-between;align-items:center;flex-wrap:wrap;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:.9rem 1rem}
+.sv-card.closed{background:#FAFBFE;border-style:dashed}
+.sv-main{flex:1 1 18rem;min-width:0}
+.sv-kicker{display:flex;flex-wrap:wrap;align-items:center;gap:.2rem .45rem;font-size:.74rem;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--brand)}
+.sv-card h3{margin:.25rem 0}
+.sv-card h3 a{color:var(--ink);text-decoration:none;overflow-wrap:anywhere}
+.sv-card h3 a:hover{color:var(--brand)}
+.sv-meta{display:flex;flex-wrap:wrap;gap:.3rem .9rem;color:var(--muted);font-size:.88rem}
+.sv-meta .hot{color:var(--bad);font-weight:600}
+.sv-side{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap}

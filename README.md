@@ -31,6 +31,8 @@ acw/
 │   ├── messages.php
 │   ├── chat.php
 │   ├── chat_list.php
+│   ├── saved.php          (saved requests page, commissioners)
+│   ├── bookmark.php       (save / un-save a request)
 │   │
 │   ├── admin/
 │   │   ├── index.php
@@ -46,7 +48,8 @@ acw/
 │       │   ├── forum.css
 │       │   ├── order.css
 │       │   ├── orders.css
-│       │   └── profile.css
+│       │   ├── profile.css
+│       │   └── features.css
 │       └── js/
 │           ├── chat.js
 │           ├── bubble.js
@@ -71,16 +74,10 @@ acw/
 │   └── auth_side.php
 │
 ├── database/
-│   └── migrations/
-│       ├── 001_users.sql
-│       ├── 002_forum.sql
-│       ├── 003_offers.sql
-│       ├── 004_orders.sql
-│       ├── 005_chat.sql
-│       ├── 006_chat_reads.sql
-│       ├── 007_escrow.sql
-│       ├── 008_disputes_ratings.sql
-│       └── 009_indexes.sql
+│   └── migration/
+│       ├── schema.sql
+│       ├── schema_inc2.sql ... schema_inc7.sql
+│       └── schema_inc8.sql   (everyday subjects + saved requests)
 │
 ├── storage/
 │   ├── outputs/
@@ -96,13 +93,22 @@ acw/
 
 ## Setup
 
-1. Run the migrations in order:
-   `for f in database/migrations/*.sql; do mysql -u root < "$f"; done`
+1. Run the migrations in order (`schema.sql`, then `schema_inc2.sql` up to `schema_inc8.sql`).
+   With XAMPP: open phpMyAdmin, go to the Import tab, and import each file one at a time in that order.
+   Already set up before? Import only the new `schema_inc8.sql`.
 2. Edit `src/config.php` if your DB credentials differ.
 3. Put the project in `htdocs/acw` (XAMPP). Open `http://localhost/acw/public/`.
    For a cleaner URL, point the Apache DocumentRoot or a VirtualHost at `acw/public`.
 4. Make an admin: register, then `UPDATE users SET role='admin' WHERE username='you';`
    The admin panel is at `/admin/`.
+
+## What's new
+
+- **Everyday tasks.** The site is still school-first, but requests can also be everyday tasks
+  (design, tutoring, errands, tech help...). Types are grouped in `post_type_groups()` in `src/helpers.php`.
+  The forum has School work / Everyday tasks tabs.
+- **Saved requests.** Commissioners can star a request (Save button in the forum and on a request page)
+  and find it again on the Saved page.
 
 ## Conventions
 

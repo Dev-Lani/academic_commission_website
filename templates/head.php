@@ -5,3 +5,4 @@
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/style.css">
 <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/ui.css">
+<link rel="stylesheet" href="<?= BASE_URL ?>assets/css/features.css">
