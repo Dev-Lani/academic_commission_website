@@ -43,6 +43,10 @@ function note_view($r){
       return [$r['client_name'] . ' opened a dispute', 'On “' . $r['title'] . '”. An admin will review it. Payment stays in escrow.', 'order.php?id=' . $r['order_id'], 'Open order'];
     case 'resolved':
       return ['An admin resolved the dispute', 'On “' . $r['title'] . '”. Open the order to see the decision.', 'order.php?id=' . $r['order_id'], 'Open order'];
+    case 'revision':
+      return [$r['client_name'] . ' asked for changes', 'On “' . $r['title'] . '”. Open the order to read what to fix and deliver the revision on time.', 'order.php?id=' . $r['order_id'], 'See changes'];
+    case 'redelivered':
+      return [$r['comm_name'] . ' delivered the revised work', '“' . $r['title'] . '” has a new version. Open the preview, then approve, ask for more changes, or dispute.', 'order.php?id=' . $r['order_id'], 'Review work'];
     case 'released':
       return ['Payment released automatically', 'The review window for “' . $r['title'] . '” ended with no response.', 'order.php?id=' . $r['order_id'], 'Open order'];
   }
@@ -61,6 +65,8 @@ $meta = [
   'disputed'  => ['money',  'bad',   '<path d="M12 4l9 16H3z"/><path d="M12 10v4M12 17v.5"/>'],
   'resolved'  => ['money',  'warn',  '<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/>'],
   'released'  => ['money',  'good',  '<rect x="3" y="6" width="18" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/>'],
+  'revision'    => ['orders', 'warn',  '<path d="M4 12a8 8 0 0 1 14-5.3L20 9M20 4v5h-5M20 12a8 8 0 0 1-14 5.3L4 15M4 20v-5h5"/>'],
+  'redelivered' => ['orders', 'offer', '<path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5"/>'],
 ];
 
 function nt_day($ts){

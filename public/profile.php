@@ -23,6 +23,7 @@ $reviews = $r->fetchAll();
     <h1><?= e($u['username']) ?></h1>
     <p><?= $isComm ? 'Commissioner' : 'Client' ?> · member since <?= e(date('M Y', strtotime($u['created_at']))) ?></p>
   </div>
+  <?= commissioner_about_html($u['username']) ?>
   <div class="layout">
     <section class="panel">
       <h2>Comments (<?= count($reviews) ?>)</h2>

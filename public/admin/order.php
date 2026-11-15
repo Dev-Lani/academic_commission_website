@@ -20,6 +20,9 @@ $logs = $pdo->prepare('SELECT ip, created_at FROM view_logs WHERE order_id=? ORD
 $logs->execute([$id]);
 $logs = $logs->fetchAll();
 $msgs = chat_messages($id, (int)$me['id']);
+$revs = $pdo->prepare('SELECT round_no, notes, created_at, due_by, fulfilled_at FROM revision_requests WHERE order_id=? ORDER BY round_no');
+$revs->execute([$id]);
+$revs = $revs->fetchAll();
 $late = $o['delivered_at'] && strtotime($o['delivered_at']) > strtotime($o['deliver_by']);
 $pct = TIER_FEE[$o['comm_tier']] ?? PLATFORM_FEE_PCT;
 ?>
@@ -41,6 +44,17 @@ $pct = TIER_FEE[$o['comm_tier']] ?? PLATFORM_FEE_PCT;
           (<?= $late ? 'after' : 'before' ?> the <?= e(date('M j, g:i A', strtotime($o['deliver_by']))) ?> deadline)
           · Preview opened <?= $o['preview_started_at'] ? e(date('M j, g:i A', strtotime($o['preview_started_at']))) : 'never' ?> · File: <?= e($o['final_name']) ?></p>
       </section>
+
+      <?php if ($revs): ?>
+      <section class="panel panel-pad">
+        <h2>Revision requests (<?= count($revs) ?>)</h2>
+        <?php foreach ($revs as $rv): ?>
+          <p><b>Round <?= (int)$rv['round_no'] ?></b> · asked <?= e(date('M j, g:i A', strtotime($rv['created_at']))) ?>, due <?= e(date('M j, g:i A', strtotime($rv['due_by']))) ?> ·
+            <?= $rv['fulfilled_at'] ? 'delivered ' . e(date('M j, g:i A', strtotime($rv['fulfilled_at']))) : '<b>not delivered</b>' ?><br>
+            <?= nl2br(e($rv['notes'])) ?></p>
+        <?php endforeach; ?>
+      </section>
+      <?php endif; ?>
 
       <section class="panel">
         <h2>Preview view log (<?= count($logs) ?>)</h2>

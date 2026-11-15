@@ -31,6 +31,7 @@ $liveN = $isAdmin ? (int)$stats[2][0] : (int)$stats[$isClient ? 2 : 1][0];
 
 /* Active orders */
 $q = $pdo->prepare("SELECT ord.id, ord.status, ord.agree_by, ord.deliver_by, ord.review_by, p.title,
+    (SELECT rr.due_by FROM revision_requests rr WHERE rr.order_id=ord.id AND rr.fulfilled_at IS NULL ORDER BY rr.id DESC LIMIT 1) AS revision_by,
     IF(ord.client_id=?, cm.username, cl.username) AS other
   FROM orders ord JOIN posts p ON p.id=ord.post_id
   JOIN users cl ON cl.id=ord.client_id JOIN users cm ON cm.id=ord.commissioner_id
@@ -70,6 +71,9 @@ if ($isAdmin) {
     elseif ($isClient && $st === 'delivered')
       $att[] = ['title' => 'Review work: ' . $o['title'], 'ts' => $o['review_by'], 'pre' => 'Review: ',
                 'href' => 'order.php?id=' . $o['id'], 'btn' => 'Review work', 'prim' => true, 'red' => strtotime($o['review_by']) - $now < 86400];
+    elseif (!$isClient && $st === 'active' && $o['revision_by'])
+      $att[] = ['title' => 'Revision requested: ' . $o['title'], 'ts' => $o['revision_by'], 'pre' => 'Revision due: ',
+                'href' => 'order.php?id=' . $o['id'], 'btn' => 'See changes', 'prim' => true, 'red' => strtotime($o['revision_by']) - $now < 86400];
     elseif (!$isClient && $st === 'active' && strtotime($o['deliver_by']) - $now < 86400)
       $att[] = ['title' => 'Due soon: ' . $o['title'], 'ts' => $o['deliver_by'], 'pre' => 'Due: ',
                 'href' => 'order.php?id=' . $o['id'], 'btn' => 'Deliver', 'prim' => true, 'red' => true];
@@ -84,7 +88,7 @@ if ($isAdmin) {
              'expired' => 'No response on', 'approved' => 'Work approved:',
              'disputed' => 'Dispute opened on', 'released' => 'Payment released:', 'resolved' => 'Dispute resolved:'];
   $q = $pdo->prepare("SELECT n.type, n.order_id, p.id AS pid, p.title FROM notifications n JOIN posts p ON p.id=n.post_id
-    WHERE n.user_id=? AND n.is_read=0 AND n.type NOT IN ('accepted','delivered') ORDER BY n.updated_at DESC LIMIT 4");
+    WHERE n.user_id=? AND n.is_read=0 AND n.type NOT IN ('accepted','delivered','redelivered','revision') ORDER BY n.updated_at DESC LIMIT 4");
   $q->execute([$uid]);
   foreach ($q->fetchAll() as $r) {
     $toPost = in_array($r['type'], ['offer', 'declined', 'expired'], true) || !$r['order_id'];
@@ -168,11 +172,11 @@ function d_seg($status){
               <span class="d-av" aria-hidden="true"><?= e(strtoupper(mb_substr($o['other'], 0, 1))) ?></span>
               <div class="d-who"><a class="d-t" href="order.php?id=<?= (int)$o['id'] ?>"><?= e($o['title']) ?></a>
                 <small><?= $isClient ? 'With ' : 'For ' ?><?= e($o['other']) ?></small></div>
-              <?= status_tag($st) ?>
+              <?= $st === 'active' && $o['revision_by'] ? '<span class="tag warn">Revision requested</span>' : status_tag($st) ?>
             </div>
             <?= d_seg($st) ?>
             <div class="d-row2">
-              <?php if (isset($dl[$st])): [$col, $pre] = $dl[$st]; $ts = strtotime($o[$col]); ?>
+              <?php if (isset($dl[$st])): [$col, $pre] = $dl[$st]; if ($st === 'active' && $o['revision_by']) { $col = 'revision_by'; $pre = 'Revision due: '; } $ts = strtotime($o[$col]); ?>
                 <span class="d-ck<?= $ts - $now < 86400 ? ' red' : '' ?>"><span data-deadline="<?= e(date('c', $ts)) ?>" data-prefix="<?= e($pre) ?>"<?= $st === 'pending_agree' ? ' data-sec="1"' : '' ?>><?= e($pre . date('M j, g:i A', $ts)) ?></span></span>
               <?php else: ?><span class="d-ck">Admin review</span><?php endif; ?>
               <a class="btn<?= $cta[1] ? ' ghost' : '' ?>" href="order.php?id=<?= (int)$o['id'] ?>"><?= e($cta[0]) ?></a>

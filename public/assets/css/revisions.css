@@ -1,0 +1,13 @@
+/* Revision requests */
+.rv-box{margin:.5rem 0 1rem;padding:.75rem 1rem;border:1px solid #E6C84C;border-left-width:4px;border-radius:8px;background:var(--hl)}
+.rv-box small{display:block;font-weight:600;color:#4a3d00}
+.rv-box p{margin:.3rem 0 0;overflow-wrap:anywhere}
+.revision-form{max-width:34rem;border-top:1px solid var(--line);padding-top:1rem}
+.revision-form textarea{min-height:5.5rem}
+.rv-used{max-width:34rem;border-top:1px solid var(--line);padding-top:1rem;margin:0}
+.rv-log{margin-top:1.5rem}
+.rv-list{list-style:none;margin:0;padding:0;display:grid;gap:.9rem}
+.rv-list li{border-top:1px solid var(--line);padding-top:.7rem}
+.rv-list li:first-child{border-top:0;padding-top:0}
+.rv-top{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap}
+.rv-list p{margin:.3rem 0 0;overflow-wrap:anywhere}

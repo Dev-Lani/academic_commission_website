@@ -62,6 +62,51 @@ if ($action === 'rate') {
   header('Location: ' . $back); exit;
 }
 
+/* ---------- Client: ask for changes instead of approving or disputing ---------- */
+if ($action === 'revision') {
+  $id = (int)($_POST['order_id'] ?? 0);
+  $back = 'order.php?id=' . $id;
+
+  $pdo->beginTransaction();
+  $q = $pdo->prepare('SELECT * FROM orders WHERE id=? FOR UPDATE');
+  $q->execute([$id]);
+  $ord = $q->fetch();
+
+  if (!$ord || $ord['client_id'] != $me['id'] || $ord['status'] !== 'delivered') {
+    $pdo->rollBack();
+    header('Location: orders.php'); exit;
+  }
+  if (strtotime($ord['review_by']) < time()) { // auto-released na
+    $pdo->rollBack();
+    expire_reviews();
+    header('Location: ' . $back); exit;
+  }
+
+  $notes = trim($_POST['notes'] ?? '');
+  $c = $pdo->prepare('SELECT COUNT(*) FROM revision_requests WHERE order_id=?');
+  $c->execute([$id]);
+  $used = (int)$c->fetchColumn();
+
+  $err = '';
+  if (!$ord['preview_started_at'])                              $err = 'Open the preview first. You can only ask for changes on work you have looked at.';
+  elseif ($used >= MAX_REVISIONS)                               $err = 'You have used all ' . MAX_REVISIONS . ' revision requests for this order. You can approve the work or open a dispute.';
+  elseif (mb_strlen($notes) < 10 || mb_strlen($notes) > 1000)   $err = 'Describe the changes you need in 10 to 1000 characters.';
+  if ($err) {
+    $pdo->rollBack();
+    $_SESSION['flash_err'] = $err; $_SESSION['old_notes'] = $notes;
+    header('Location: ' . $back); exit;
+  }
+
+  // The order goes back to "active" (work in progress). The escrow stays held the whole time.
+  $now = time();
+  $pdo->prepare('INSERT INTO revision_requests (order_id, round_no, notes, created_at, due_by) VALUES (?,?,?,?,?)')
+      ->execute([$id, $used + 1, $notes, date('Y-m-d H:i:s', $now), date('Y-m-d H:i:s', $now + REVISION_HOURS * 3600)]);
+  $pdo->prepare("UPDATE orders SET status='active' WHERE id=? AND status='delivered'")->execute([$id]);
+  notify($ord['commissioner_id'], $ord['post_id'], 'revision', $id);
+  $pdo->commit();
+  header('Location: ' . $back); exit;
+}
+
 /* ---------- Client: approve or dispute delivered work ---------- */
 if (in_array($action, ['approve', 'dispute'], true)) {
   $id = (int)($_POST['order_id'] ?? 0);

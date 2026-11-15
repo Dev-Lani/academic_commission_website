@@ -32,6 +32,7 @@ acw/
 │   ├── chat.php
 │   ├── chat_list.php
 │   ├── saved.php          (saved requests page, commissioners)
+│   ├── edit_profile.php   (commissioner bio + skills)
 │   ├── bookmark.php       (save / un-save a request)
 │   │
 │   ├── admin/
@@ -77,7 +78,8 @@ acw/
 │   └── migration/
 │       ├── schema.sql
 │       ├── schema_inc2.sql ... schema_inc7.sql
-│       └── schema_inc8.sql   (everyday subjects + saved requests)
+│       ├── schema_inc8.sql   (everyday subjects + saved requests)
+│       └── schema_inc9.sql   (commissioner bio + skills)
 │
 ├── storage/
 │   ├── outputs/
@@ -93,9 +95,9 @@ acw/
 
 ## Setup
 
-1. Run the migrations in order (`schema.sql`, then `schema_inc2.sql` up to `schema_inc8.sql`).
+1. Run the migrations in order (`schema.sql`, then `schema_inc2.sql` up to `schema_inc9.sql`).
    With XAMPP: open phpMyAdmin, go to the Import tab, and import each file one at a time in that order.
-   Already set up before? Import only the new `schema_inc8.sql`.
+   Already set up before? Import only the new `schema_inc9.sql`.
 2. Edit `src/config.php` if your DB credentials differ.
 3. Put the project in `htdocs/acw` (XAMPP). Open `http://localhost/acw/public/`.
    For a cleaner URL, point the Apache DocumentRoot or a VirtualHost at `acw/public`.
@@ -109,6 +111,9 @@ acw/
   The forum has School work / Everyday tasks tabs.
 - **Saved requests.** Commissioners can star a request (Save button in the forum and on a request page)
   and find it again on the Saved page.
+
+- **Commissioner profile.** Commissioners add a short bio and pick up to 5 subjects they are good at
+  (`edit_profile.php`). It shows on their profile page and next to their offers on a request.
 
 ## Conventions
 

@@ -52,6 +52,7 @@ if ($mine) {
   $q = $pdo->prepare($sql);
   $q->execute($params);
   $offers = $q->fetchAll();
+  $cprof  = commissioner_profiles(array_column($offers, 'user_id')); // bio + skills for every offer, two queries total
 } elseif ($isComm) {
   $q = $pdo->prepare('SELECT * FROM offers WHERE post_id=? AND user_id=?');
   $q->execute([$id, $me['id']]);
@@ -111,6 +112,12 @@ $dv = $f['deliver_by'] ? date('Y-m-d\TH:i', strtotime($f['deliver_by'])) : '';
                 <span class="chip tier"><?= e($o['tier']) ?></span>
                 <?php if ($o['is_verified']): ?><span class="chip">Verified</span><?php endif; ?>
               </div>
+              <?php $cp = $cprof[(int)$o['user_id']] ?? null; if ($cp && ($cp['bio'] !== '' || $cp['skills'])): ?>
+                <div class="cp-offer">
+                  <?= skill_chips($cp['skills']) ?>
+                  <?php if ($cp['bio'] !== ''): ?><p class="cp-bio"><?= e(mb_strimwidth($cp['bio'], 0, 220, '…')) ?></p><?php endif; ?>
+                </div>
+              <?php endif; ?>
               <p class="offer-msg"><?= nl2br(e($o['message'])) ?></p>
               <?php if ($o['sample']): ?><p class="offer-sample"><b>Sample work:</b> <?= sample_html($o['sample']) ?></p><?php endif; ?>
               <small class="muted"><?= $st['rating_n'] ? number_format($st['rating'], 1) . ' ★ (' . $st['rating_n'] . ') · ' : 'No ratings yet · ' ?><?= $st['completed'] ?> done · Can deliver by <?= e(date('M j, g:i A', strtotime($o['deliver_by']))) ?></small>

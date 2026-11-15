@@ -51,6 +51,7 @@ function refund_escrow($o){
 // (Cron job sa Increment 6.)
 function expire_reviews(){
   global $pdo;
+  expire_revisions(); // same lazy check, runs on every page load via require_login()
   $q = $pdo->prepare("SELECT * FROM orders WHERE status='delivered' AND review_by < ?");
   $q->execute([date('Y-m-d H:i:s')]);
   foreach ($q->fetchAll() as $o) {
@@ -67,3 +68,24 @@ function expire_reviews(){
   }
 }
 
+// Lazy escalation: the commissioner did not deliver a requested revision in time.
+// The order moves to admin review as a dispute, so the client's escrow is never stuck.
+function expire_revisions(){
+  global $pdo;
+  $q = $pdo->prepare("SELECT o.* FROM orders o
+    JOIN revision_requests rr ON rr.order_id=o.id AND rr.fulfilled_at IS NULL
+    WHERE o.status='active' AND rr.due_by < ?");
+  $q->execute([date('Y-m-d H:i:s')]);
+  foreach ($q->fetchAll() as $o) {
+    $pdo->beginTransaction();
+    $u = $pdo->prepare("UPDATE orders SET status='disputed' WHERE id=? AND status='active'");
+    $u->execute([$o['id']]);
+    if ($u->rowCount()) {
+      $pdo->prepare('INSERT IGNORE INTO disputes (order_id, opened_by, reason, created_at) VALUES (?,?,?,?)')
+          ->execute([$o['id'], $o['client_id'], 'Automatic: the commissioner did not deliver the requested revision in time.', date('Y-m-d H:i:s')]);
+      notify($o['commissioner_id'], $o['post_id'], 'disputed', $o['id']);
+      notify($o['client_id'], $o['post_id'], 'disputed', $o['id']);
+    }
+    $pdo->commit();
+  }
+}

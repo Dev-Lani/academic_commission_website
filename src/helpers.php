@@ -139,3 +139,51 @@ function save_button($postId, $isSaved, $back){
        . ' title="' . ($isSaved ? 'Remove from your saved requests' : 'Save this request for later') . '">'
        . '<span aria-hidden="true">' . ($isSaved ? '★' : '☆') . '</span> ' . ($isSaved ? 'Saved' : 'Save') . '</button></form>';
 }
+
+
+/* ---------- Commissioner profile (bio + skills) ---------- */
+
+// Bio and skills for several commissioners in two queries.
+// Returns [user_id => ['bio' => string, 'skills' => [subject names], 'skill_ids' => [ints]]].
+// Every id asked for is in the result, even if that person has not filled anything in.
+function commissioner_profiles(array $userIds){
+  global $pdo;
+  $ids = array_values(array_unique(array_map('intval', $userIds)));
+  if (!$ids) return [];
+  $in  = implode(',', array_fill(0, count($ids), '?'));
+  $out = array_fill_keys($ids, ['bio' => '', 'skills' => [], 'skill_ids' => []]);
+  $q = $pdo->prepare("SELECT user_id, bio FROM commissioner_profiles WHERE user_id IN ($in)");
+  $q->execute($ids);
+  foreach ($q as $r) $out[(int)$r['user_id']]['bio'] = (string)$r['bio'];
+  $q = $pdo->prepare("SELECT cs.user_id, s.id, s.name FROM commissioner_skills cs JOIN subjects s ON s.id=cs.subject_id WHERE cs.user_id IN ($in) ORDER BY s.name");
+  $q->execute($ids);
+  foreach ($q as $r) { $out[(int)$r['user_id']]['skills'][] = $r['name']; $out[(int)$r['user_id']]['skill_ids'][] = (int)$r['id']; }
+  return $out;
+}
+
+// Row of small subject chips.
+function skill_chips(array $names){
+  if (!$names) return '';
+  $h = '<ul class="cp-chips" aria-label="Good at">';
+  foreach ($names as $n) $h .= '<li>' . e($n) . '</li>';
+  return $h . '</ul>';
+}
+
+// "About" panel for profile.php. Pass the username from the address (?u=...).
+// Shows nothing for non-commissioners. The owner always sees it, with an Edit link.
+function commissioner_about_html($username){
+  global $pdo, $me;
+  $q = $pdo->prepare("SELECT id, role FROM users WHERE username=?");
+  $q->execute([(string)$username]);
+  $u = $q->fetch();
+  if (!$u || $u['role'] !== 'commissioner') return '';
+  $cp    = commissioner_profiles([$u['id']])[(int)$u['id']];
+  $owner = $u['id'] == $me['id'];
+  if ($cp['bio'] === '' && !$cp['skills'] && !$owner) return '';
+  $h = '<section class="panel cp-about"><h2>About</h2>';
+  if ($cp['bio'] !== '') $h .= '<p class="cp-bio">' . nl2br(e($cp['bio'])) . '</p>';
+  elseif ($owner) $h .= '<p class="muted">You have not added a bio yet. Clients are more likely to pick offers from people they know a bit about.</p>';
+  if ($cp['skills']) $h .= '<h3 class="cp-sub">Good at</h3>' . skill_chips($cp['skills']);
+  if ($owner) $h .= '<p><a class="btn ghost sm" href="' . BASE_URL . 'edit_profile.php">Edit bio &amp; skills</a></p>';
+  return $h . '</section>';
+}

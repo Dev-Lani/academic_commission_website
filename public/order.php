@@ -26,7 +26,8 @@ $hasChat = in_array($o['status'], ['active', 'delivered', 'disputed', 'completed
 $flashErr  = $_SESSION['flash_err'] ?? '';
 $oldReason = $_SESSION['old_reason'] ?? '';
 $oldComment = $_SESSION['old_comment'] ?? '';
-unset($_SESSION['flash_err'], $_SESSION['old_reason'], $_SESSION['old_comment']);
+$oldNotes = $_SESSION['old_notes'] ?? '';
+unset($_SESSION['flash_err'], $_SESSION['old_reason'], $_SESSION['old_comment'], $_SESSION['old_notes']);
 
 $dispute = null;
 if ($o['status'] === 'disputed') {
@@ -34,6 +35,13 @@ if ($o['status'] === 'disputed') {
   $d->execute([$id]);
   $dispute = $d->fetch();
 }
+// Revision requests: every round, and the one still waiting for a new delivery (if any).
+$revs = $pdo->prepare('SELECT round_no, notes, created_at, due_by, fulfilled_at FROM revision_requests WHERE order_id=? ORDER BY round_no');
+$revs->execute([$id]);
+$revs = $revs->fetchAll();
+$openRev = null;
+foreach ($revs as $rv) if (!$rv['fulfilled_at']) $openRev = $rv;
+$revLeft = max(0, MAX_REVISIONS - count($revs));
 $escrow = ['none'=>'Not funded', 'held'=>'Held in escrow', 'released'=>'Released', 'refunded'=>'Refunded'][$o['escrow_status']] ?? $o['escrow_status'];
 $payout = (int)$o['price'] - (int)$o['fee'];
 $myRating = $theirRating = null;
@@ -57,14 +65,14 @@ if ($o['status'] === 'completed') {
 ?>
 <!doctype html>
 <html lang="en"><head><title>Order · Academic Commission</title><?php include TEMPLATE_PATH . 'head.php'; ?>
-<link rel="stylesheet" href="<?= BASE_URL ?>assets/css/chat.css"><link rel="stylesheet" href="<?= BASE_URL ?>assets/css/order.css"><link rel="stylesheet" href="<?= BASE_URL ?>assets/css/profile.css"><?php if ($o['status'] === 'completed'): ?><link rel="stylesheet" href="<?= BASE_URL ?>assets/css/orders.css"><link rel="stylesheet" href="<?= BASE_URL ?>assets/css/dash.css"><link rel="stylesheet" href="<?= BASE_URL ?>assets/css/rate.css"><?php endif; ?></head>
+<link rel="stylesheet" href="<?= BASE_URL ?>assets/css/chat.css"><link rel="stylesheet" href="<?= BASE_URL ?>assets/css/order.css"><link rel="stylesheet" href="<?= BASE_URL ?>assets/css/profile.css"><link rel="stylesheet" href="<?= BASE_URL ?>assets/css/revisions.css"><?php if ($o['status'] === 'completed'): ?><link rel="stylesheet" href="<?= BASE_URL ?>assets/css/orders.css"><link rel="stylesheet" href="<?= BASE_URL ?>assets/css/dash.css"><link rel="stylesheet" href="<?= BASE_URL ?>assets/css/rate.css"><?php endif; ?></head>
 <body>
 <?php include TEMPLATE_PATH . 'nav.php'; ?>
 <main class="wrap">
   <div class="page-head">
     <p><a href="orders.php">My orders</a></p>
     <h1><?= e($o['title']) ?></h1>
-    <p><?= status_tag($o['status']) ?></p>
+    <p><?= $openRev && $o['status'] === 'active' ? '<span class="tag warn">Revision requested</span>' : status_tag($o['status']) ?></p>
   </div>
 
   <div class="layout">
@@ -95,15 +103,21 @@ if ($o['status'] === 'completed') {
 
     <?php elseif ($o['status'] === 'active'): ?>
       <section class="panel panel-pad">
-        <h2>Work in progress</h2>
+        <h2><?= $openRev ? 'Revision requested' : 'Work in progress' ?></h2>
+        <?php if ($openRev): ?>
+          <div class="rv-box">
+            <small>Changes <?= $isComm ? e($o['client_name']) . ' asked for' : 'you asked for' ?> · round <?= (int)$openRev['round_no'] ?> of <?= MAX_REVISIONS ?></small>
+            <p><?= nl2br(e($openRev['notes'])) ?></p>
+          </div>
+        <?php endif; ?>
         <div class="timers">
           <div><p class="muted">Time elapsed</p>
             <p class="clock" data-since="<?= e(date('c', strtotime($o['started_at']))) ?>"></p></div>
-          <div><p class="muted">Time until delivery</p>
-            <p class="clock" data-sec="1" data-deadline="<?= e(date('c', strtotime($o['deliver_by']))) ?>"></p></div>
+          <div><p class="muted"><?= $openRev ? 'Time until the revision is due' : 'Time until delivery' ?></p>
+            <p class="clock" data-sec="1" data-deadline="<?= e(date('c', strtotime($openRev ? $openRev['due_by'] : $o['deliver_by']))) ?>"></p></div>
         </div>
         <?php if ($isComm): ?>
-          <h3>Deliver the work</h3>
+          <h3><?= $openRev ? 'Deliver the revised work' : 'Deliver the work' ?></h3>
           <p class="muted">Upload the final file and a preview (PDF, PNG, or JPG, max 10 MB each). The client sees only the preview, view-only and for <?= PREVIEW_MIN ?> minutes. The final file unlocks when they approve.</p>
           <?php if ($flashErr): ?><div class="alert err" role="alert"><?= e($flashErr) ?></div><?php endif; ?>
           <form method="post" action="deliver.php" enctype="multipart/form-data" class="deliver-form"
@@ -119,6 +133,7 @@ if ($o['status'] === 'completed') {
           </form>
         <?php else: ?>
           <p class="muted"><?= money($o['price']) ?> is held in escrow. It is only released when you approve the work.</p>
+          <?php if ($openRev): ?><p class="muted"><?= e($o['comm_name']) ?> has until <?= e(date('M j, g:i A', strtotime($openRev['due_by']))) ?> to deliver the changes. If they miss it, the order goes to admin review and your payment stays in escrow.</p><?php endif; ?>
         <?php endif; ?>
       </section>
 
@@ -134,7 +149,7 @@ if ($o['status'] === 'completed') {
             : 'The client has not opened the preview yet.' ?></p>
         <?php else: ?>
           <h2>Review the work</h2>
-          <p><?= e($o['comm_name']) ?> delivered. Open the preview, then approve or dispute. Approving releases <?= money($o['price']) ?> and unlocks the final file.
+          <p><?= e($o['comm_name']) ?> delivered. Open the preview, then approve, ask for changes, or dispute. Approving releases <?= money($o['price']) ?> and unlocks the final file.
             If you do nothing, payment is released automatically when the review window ends.</p>
           <p class="muted">Review window ends in</p>
           <p class="clock" data-sec="1" data-deadline="<?= e(date('c', strtotime($o['review_by']))) ?>"></p>
@@ -148,6 +163,21 @@ if ($o['status'] === 'completed') {
                 <button class="btn sm" name="action" value="approve" onclick="return confirm('Approve and release payment? This can\'t be undone.')">Approve and release payment</button>
               </form>
             </div>
+            <?php if ($revLeft > 0): ?>
+            <form method="post" action="order_action.php" class="revision-form">
+              <input type="hidden" name="csrf" value="<?= csrf_token() ?>">
+              <input type="hidden" name="order_id" value="<?= $id ?>">
+              <div class="field"><label class="lbl" for="rv-notes">Ask for changes</label>
+                <textarea id="rv-notes" name="notes" maxlength="1000" <?= $o['preview_started_at'] ? '' : 'disabled' ?>><?= e($oldNotes) ?></textarea>
+                <p class="hint"><?= $o['preview_started_at']
+                  ? 'Say exactly what to fix. ' . e($o['comm_name']) . ' gets ' . REVISION_HOURS . ' hours to deliver it. Payment stays in escrow. Revision ' . (count($revs) + 1) . ' of ' . MAX_REVISIONS . '.'
+                  : 'Open the preview first. You can only ask for changes on work you have looked at.' ?></p></div>
+              <button class="btn sm ghost" name="action" value="revision" <?= $o['preview_started_at'] ? '' : 'disabled' ?>
+                onclick="return confirm('Send this revision request? The work goes back to the commissioner.')">Request revision</button>
+            </form>
+            <?php else: ?>
+            <p class="muted rv-used">You have used all <?= MAX_REVISIONS ?> revision requests for this order. You can approve the work or open a dispute.</p>
+            <?php endif; ?>
             <form method="post" action="order_action.php" class="dispute-form">
               <input type="hidden" name="csrf" value="<?= csrf_token() ?>">
               <input type="hidden" name="order_id" value="<?= $id ?>">
@@ -267,6 +297,22 @@ if ($o['status'] === 'completed') {
         <p>This order did not go ahead.
           <?= $isComm ? '' : 'Your request is open again, so you can pick another offer.' ?></p>
         <a class="btn ghost" href="post.php?id=<?= (int)$o['post_id'] ?>">Back to the request</a>
+      </section>
+    <?php endif; ?>
+
+    <?php if ($revs): ?>
+      <section class="panel panel-pad rv-log" aria-labelledby="rv-h">
+        <h2 id="rv-h">Revision requests (<?= count($revs) ?> of <?= MAX_REVISIONS ?> used)</h2>
+        <ol class="rv-list">
+          <?php foreach ($revs as $rv): ?>
+            <li>
+              <div class="rv-top"><b>Round <?= (int)$rv['round_no'] ?></b>
+                <span class="tag <?= $rv['fulfilled_at'] ? 'ok' : ($o['status'] === 'active' ? 'warn' : 'bad') ?>"><?= $rv['fulfilled_at'] ? 'Delivered' : ($o['status'] === 'active' ? 'Waiting for new delivery' : 'Not delivered in time') ?></span></div>
+              <small>Asked <?= e(date('M j, g:i A', strtotime($rv['created_at']))) ?> · due <?= e(date('M j, g:i A', strtotime($rv['due_by']))) ?></small>
+              <p><?= nl2br(e($rv['notes'])) ?></p>
+            </li>
+          <?php endforeach; ?>
+        </ol>
       </section>
     <?php endif; ?>
 

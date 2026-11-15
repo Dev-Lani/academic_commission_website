@@ -20,7 +20,7 @@ $soon  = date('Y-m-d H:i:s', time() + 86400); // 24 hours from now
 function ord_act($isClient, $s, $uid, $soon){
   $rate = "(ord.status='completed' AND NOT EXISTS (SELECT 1 FROM ratings rr WHERE rr.order_id=ord.id AND rr.rater_id=:m$s))";
   if ($isClient) return ["(ord.status='delivered' OR $rate)", [":m$s" => $uid]];
-  return ["(ord.status='pending_agree' OR (ord.status='active' AND ord.deliver_by <= :s$s) OR $rate)",
+  return ["(ord.status='pending_agree' OR (ord.status='active' AND (EXISTS (SELECT 1 FROM revision_requests rq WHERE rq.order_id=ord.id AND rq.fulfilled_at IS NULL) OR ord.deliver_by <= :s$s)) OR $rate)",
           [":m$s" => $uid, ":s$s" => $soon]];
 }
 
@@ -76,6 +76,7 @@ $order = ['new' => 'ord.accepted_at DESC, ord.id DESC', 'due' => 'ord.deliver_by
           'price' => 'ord.price DESC, ord.id DESC'][$sort];
 $q = $pdo->prepare("SELECT ord.id, ord.status, ord.price, ord.escrow_status, ord.fee, ord.deliver_by, ord.agree_by, ord.review_by,
     ord.client_id, ord.commissioner_id, p.title,
+    (SELECT rr.due_by FROM revision_requests rr WHERE rr.order_id=ord.id AND rr.fulfilled_at IS NULL ORDER BY rr.id DESC LIMIT 1) AS revision_by,
     IF(ord.client_id=:oa, cm.username, cl.username) AS other_name,
     ($actA) AS needs_action,
     EXISTS (SELECT 1 FROM ratings r2 WHERE r2.order_id=ord.id AND r2.rater_id=:ra) AS rated,
@@ -182,7 +183,7 @@ $escrowText = ['none' => 'Escrow not funded yet', 'held' => 'Escrow held', 'rele
         $flag = '';
         if ($act) {
           if     ($status === 'pending_agree') $flag = 'Reply needed';
-          elseif ($status === 'active')        $flag = 'Due soon';
+          elseif ($status === 'active')        $flag = $o['revision_by'] ? 'Revision requested' : 'Due soon';
           elseif ($status === 'delivered')     $flag = 'Review needed';
           else                                 $flag = 'Rating required';
         }
@@ -190,7 +191,8 @@ $escrowText = ['none' => 'Escrow not funded yet', 'held' => 'Escrow held', 'rele
         // countdown or note
         $cd = null; $note = null;
         if ($status === 'pending_agree')   $cd = ['Reply: ',  $o['agree_by'],   true,  $isComm ? 'Confirm before it expires' : 'Waiting for the commissioner'];
-        elseif ($status === 'active')      $cd = ['Due: ',    $o['deliver_by'], false, 'Deliver by ' . date('M j, g:i A', strtotime($o['deliver_by']))];
+        elseif ($status === 'active')      $cd = $o['revision_by'] ? ['Revision due: ', $o['revision_by'], false, 'Deliver the changes by ' . date('M j, g:i A', strtotime($o['revision_by']))]
+                                                 : ['Due: ',    $o['deliver_by'], false, 'Deliver by ' . date('M j, g:i A', strtotime($o['deliver_by']))];
         elseif ($status === 'delivered')   $cd = ['Review: ', $o['review_by'],  false, 'Auto-release if no response'];
         elseif ($status === 'disputed')    $note = ['Status', 'Admin review'];
         elseif ($needRate)                 $note = ['Required', 'Rating pending'];
@@ -198,7 +200,7 @@ $escrowText = ['none' => 'Escrow not funded yet', 'held' => 'Escrow held', 'rele
         // main button
         $cta = ['Open', true];
         if     ($isComm && $status === 'pending_agree')  $cta = ['Confirm order', false];
-        elseif ($isComm && $status === 'active')         $cta = ['Deliver', false];
+        elseif ($isComm && $status === 'active')         $cta = [$o['revision_by'] ? 'Deliver revision' : 'Deliver', false];
         elseif (!$isComm && $status === 'delivered')     $cta = ['Review work', false];
         elseif ($needRate)                               $cta = ['Rate ' . $other, false];
 
@@ -215,7 +217,7 @@ $escrowText = ['none' => 'Escrow not funded yet', 'held' => 'Escrow held', 'rele
               <a class="o-title" href="order.php?id=<?= (int)$o['id'] ?>"><?= e($o['title']) ?></a>
               <small><?= $isComm ? 'For ' : 'With ' ?><?= e($other) ?></small>
             </div>
-            <?= status_tag($status) ?>
+            <?= $o['revision_by'] && $status === 'active' ? '<span class="tag warn">Revision requested</span>' : status_tag($status) ?>
           </div>
 
           <?= ord_steps($status) ?>

@@ -30,3 +30,18 @@
 .sv-meta{display:flex;flex-wrap:wrap;gap:.3rem .9rem;color:var(--muted);font-size:.88rem}
 .sv-meta .hot{color:var(--bad);font-weight:600}
 .sv-side{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap}
+
+/* Commissioner profile: bio + skills */
+.cp-chips{list-style:none;margin:.35rem 0;padding:0;display:flex;flex-wrap:wrap;gap:.3rem}
+.cp-chips li{padding:.1rem .6rem;border-radius:99px;font-size:.78rem;font-weight:600;background:#EEF0FA;color:var(--brand)}
+.cp-bio{margin:.3rem 0;color:var(--muted);font-size:.92rem;overflow-wrap:anywhere}
+.cp-offer{margin:.25rem 0 .5rem}
+.cp-about{margin:0 0 1.5rem}
+.cp-sub{margin:.8rem 0 .2rem;font-size:.8rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.cp-pick{display:flex;flex-wrap:wrap;gap:.45rem;margin-top:.4rem}
+.cp-opt{cursor:pointer}
+.cp-opt input{position:absolute;opacity:0;width:1px;height:1px}
+.cp-opt span{display:inline-block;padding:.35rem .8rem;border:1px solid var(--line);border-radius:99px;background:var(--surface);font-size:.88rem}
+.cp-opt input:checked+span{background:var(--brand);border-color:var(--brand);color:#fff}
+.cp-opt input:focus-visible+span{outline:2px solid var(--brand);outline-offset:2px}
+.cp-opt input:disabled+span{opacity:.45;cursor:not-allowed}

@@ -49,16 +49,33 @@ if (!move_uploaded_file($final['tmp_name'], PRIVATE_DIR . $fs) || !move_uploaded
 
 $now = time();
 $pdo->beginTransaction();
-$u = $pdo->prepare("UPDATE orders SET status='delivered', delivered_at=?, review_by=? WHERE id=? AND status='active'");
+// delivered_at keeps the FIRST delivery time (on-time stats), and a revision gets a fresh preview window.
+$u = $pdo->prepare("UPDATE orders SET status='delivered', delivered_at=COALESCE(delivered_at, ?), review_by=?, preview_started_at=NULL, preview_expires_at=NULL WHERE id=? AND status='active'");
 $u->execute([date('Y-m-d H:i:s', $now), date('Y-m-d H:i:s', $now + REVIEW_HOURS * 3600), $id]);
 if (!$u->rowCount()) {
   $pdo->rollBack();
   @unlink(PRIVATE_DIR . $fs); @unlink(PRIVATE_DIR . $ps);
   header('Location: ' . $back); exit;
 }
-$pdo->prepare('INSERT INTO order_outputs (order_id, final_name, final_stored, preview_stored, preview_mime, created_at) VALUES (?,?,?,?,?,?)')
-    ->execute([$id, $name, $fs, $ps, $mime, date('Y-m-d H:i:s', $now)]);
-notify($o['client_id'], $o['post_id'], 'delivered', $id);
+$stamp = date('Y-m-d H:i:s', $now);
+$ex = $pdo->prepare('SELECT * FROM order_outputs WHERE order_id=? FOR UPDATE');
+$ex->execute([$id]);
+$prev_out = $ex->fetch();
+if ($prev_out) {
+  // A revision: keep the earlier version as evidence, then replace the current one.
+  $h = $pdo->prepare('SELECT COUNT(*) FROM order_output_history WHERE order_id=?');
+  $h->execute([$id]);
+  $pdo->prepare('INSERT INTO order_output_history (order_id, version, final_name, final_stored, preview_stored, preview_mime, created_at) VALUES (?,?,?,?,?,?,?)')
+      ->execute([$id, (int)$h->fetchColumn() + 1, $prev_out['final_name'], $prev_out['final_stored'], $prev_out['preview_stored'], $prev_out['preview_mime'], $prev_out['created_at']]);
+  $pdo->prepare('UPDATE order_outputs SET final_name=?, final_stored=?, preview_stored=?, preview_mime=?, created_at=? WHERE order_id=?')
+      ->execute([$name, $fs, $ps, $mime, $stamp, $id]);
+  $pdo->prepare('UPDATE revision_requests SET fulfilled_at=? WHERE order_id=? AND fulfilled_at IS NULL')->execute([$stamp, $id]);
+  notify($o['client_id'], $o['post_id'], 'redelivered', $id);
+} else {
+  $pdo->prepare('INSERT INTO order_outputs (order_id, final_name, final_stored, preview_stored, preview_mime, created_at) VALUES (?,?,?,?,?,?)')
+      ->execute([$id, $name, $fs, $ps, $mime, $stamp]);
+  notify($o['client_id'], $o['post_id'], 'delivered', $id);
+}
 $pdo->commit();
 
 header('Location: ' . $back);
