@@ -12,3 +12,5 @@
 <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/responsive.css">
 <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/toast.css">
 <script src="<?= BASE_URL ?>assets/js/toast.js" defer></script>
+<link rel="icon" type="image/png" href="<?= BASE_URL ?>assets/img/logo.png">
+<link rel="apple-touch-icon" href="<?= BASE_URL ?>assets/img/logo.png">

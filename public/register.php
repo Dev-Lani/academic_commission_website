@@ -28,14 +28,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $ic = 'viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"';
 ?>
 <!doctype html>
-<html lang="en"><head><title>Create account · Academic Commission</title><?php include TEMPLATE_PATH . 'head.php'; ?>
+<html lang="en"><head><title>Create account · Doable</title><?php include TEMPLATE_PATH . 'head.php'; ?>
 <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/auth.css"></head>
 <body class="auth-page">
 <div class="ap">
-  <header class="ap-top"><a class="brand" href="<?= BASE_URL ?>login.php">Academic Commission</a></header>
   <main class="ap-main">
     <div class="ap-card wide">
-      <span class="ap-mark" aria-hidden="true">AC</span>
+      <img class="ap-logo" src="<?= BASE_URL ?>assets/img/logo_nav.png" alt="Doable" height="40">
       <h1>Create account</h1>
       <p class="ap-sub">Pick your role first. You can't change it later.</p>
       <?php if ($err): ?><div class="alert err" role="alert"><?= e($err) ?></div><?php endif; ?>

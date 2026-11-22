@@ -15,14 +15,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ?>
 <!doctype html>
-<html lang="en"><head><title>Log in · Academic Commission</title><?php include TEMPLATE_PATH . 'head.php'; ?>
+<html lang="en"><head><title>Log in · Doable</title><?php include TEMPLATE_PATH . 'head.php'; ?>
 <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/auth.css"></head>
 <body class="auth-page">
 <div class="ap">
-  <header class="ap-top"><a class="brand" href="<?= BASE_URL ?>login.php">Academic Commission</a></header>
   <main class="ap-main">
     <div class="ap-card">
-      <span class="ap-mark" aria-hidden="true">AC</span>
+      <img class="ap-logo" src="<?= BASE_URL ?>assets/img/logo_nav.png" alt="Doable" height="40">
       <h1>Log in</h1>
       <p class="ap-sub">Welcome back. Enter your details to continue.</p>
       <?php if (isset($_GET['registered'])): ?><div class="alert ok">Account created. You can log in now.</div><?php endif; ?>

@@ -9,4 +9,4 @@ document.querySelectorAll('.ap-show').forEach(function (b) {
     b.setAttribute('aria-pressed', String(show));
     inp.focus();
   });
-});
+}); 

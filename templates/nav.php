@@ -56,7 +56,9 @@ $noteLabels = ['offer' => 'New offers on', 'accepted' => 'Offer accepted on', 'a
   <button type="button" class="ib tn-burger" id="sb-burger" aria-label="Open menu" aria-expanded="false">
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
   </button>
-  <a class="brand" href="<?= BASE_URL ?>dashboard.php">Academic Commission</a>
+<a class="brand brand-img" href="<?= BASE_URL ?>dashboard.php" aria-label="Doable, go to dashboard">
+  <img src="<?= BASE_URL ?>assets/img/logo_nav.png" alt="Doable" height="32">
+</a>
 
   <div class="tn-right">
     <?php if ($me['role'] === 'client'): ?>

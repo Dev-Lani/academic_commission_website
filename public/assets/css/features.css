@@ -70,3 +70,7 @@ html body .ep-foot .btn.ghost{padding:0 1.5rem}
   .ep-foot{flex-direction:column-reverse}
   html body .ep-foot .btn{width:100%}
 }
+
+/* Logo sa nav: tanggalin ang yellow highlight ng .brand */
+.brand.brand-img{background:none;padding:0;display:inline-flex;align-items:center}
+.brand-img img{height:32px;width:auto;display:block}
