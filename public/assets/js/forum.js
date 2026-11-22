@@ -103,3 +103,41 @@
 
   status(); render();
 })();
+
+// Phone toolbar: search expands inline, dropdowns close each other.
+(function () {
+  var fm = document.getElementById('fm');
+  if (!fm) return;
+  var bar = fm.querySelector('.fm-bar'), sf = fm.querySelector('.fm-search'),
+      openB = document.getElementById('fm-s-open'), closeB = document.getElementById('fm-s-close'),
+      inp = sf.elements.q, dds = [].slice.call(fm.querySelectorAll('details.fm-dd'));
+
+  function closeAll(except) { dds.forEach(function (d) { if (d !== except) d.removeAttribute('open'); }); }
+  dds.forEach(function (d) { d.addEventListener('toggle', function () { if (d.open) closeAll(d); }); });
+  document.addEventListener('click', function (e) { if (!e.target.closest('.fm-dd')) closeAll(null); });
+
+  function search(on) {
+    bar.hidden = on; sf.hidden = !on; closeAll(null);
+    if (on) { inp.focus(); inp.select(); } else { openB.focus(); }
+  }
+  openB.addEventListener('click', function () { search(true); });
+  closeB.addEventListener('click', function () { search(false); });
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'Escape') return;
+    if (!sf.hidden) search(false); else closeAll(null);
+  });
+
+  // keep the URL clean: do not send empty fields
+  [].forEach.call(fm.querySelectorAll('form'), function (f) {
+    f.addEventListener('submit', function () {
+      [].forEach.call(f.elements, function (el) {
+        if (el.name && el.type !== 'submit' && el.value === '') el.disabled = true;
+      });
+    });
+  });
+  window.addEventListener('pageshow', function () {
+    [].forEach.call(fm.querySelectorAll('form'), function (f) {
+      [].forEach.call(f.elements, function (el) { el.disabled = false; });
+    });
+  });
+})();

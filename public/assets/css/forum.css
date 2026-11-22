@@ -177,3 +177,28 @@
   .ff-push{margin-left:0}
 }
 @media (prefers-reduced-motion:reduce){.ff-dd[open]>.ff-fb svg:last-child{transform:none}}
+
+/* Fix: clipped titles (descenders of y, j, g) and a cramped right side on request cards */
+html body .rq h3{line-height:1.35;margin:.3rem 0 .4rem}
+@supports (text-box:trim-both cap alphabetic){html body .rq h3{text-box:normal}}
+html body .rq h3 a{line-height:1.35;padding-bottom:.12em}
+.rq-kicker{row-gap:.3rem;line-height:1.4}
+.rq-foot{row-gap:.45rem;column-gap:.9rem}
+.rq-side{padding:1rem 1.1rem;gap:1rem}
+.rq-due{line-height:1.35}
+.rq-due small{margin-bottom:.15rem}
+.rq-act{flex-wrap:nowrap;gap:.6rem}
+.rq-act .bm{width:40px;height:40px;flex:none}
+@media (min-width:661px){
+  .feed:not(.compact) .rq{grid-template-columns:4rem minmax(0,1fr) 14.5rem}
+}
+
+/* Vote arrows: centered in the card, a bit bigger */
+.feed:not(.compact) .rq-vote{align-items:center;padding-top:0}
+.feed:not(.compact) .vbtn{width:2.5rem;height:2.5rem;font-size:1.15rem}
+.feed:not(.compact) .votes .score{font-size:1.3rem;line-height:1.3;margin:.1rem 0}
+@media (max-width:660px){
+  .feed:not(.compact) .rq{grid-template-columns:3.2rem 1fr}
+  .feed:not(.compact) .rq-vote{align-self:stretch}
+  .feed:not(.compact) .vbtn{width:2.2rem;height:2.2rem}
+}

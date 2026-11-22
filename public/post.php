@@ -68,8 +68,10 @@ $dv = $f['deliver_by'] ? date('Y-m-d\TH:i', strtotime($f['deliver_by'])) : '';
 <?php include TEMPLATE_PATH . 'nav.php'; ?>
 <main class="wrap">
   <div class="page-head">
-    <p><a href="forum.php?s=<?= e($p['slug']) ?>"><?= e($p['subject']) ?></a></p>
-    <h1><?= e($p['title']) ?></h1>
+    <div class="pg-head">
+      <?= back_button('forum.php?s=' . $p['slug'], 'Back to ' . $p['subject']) ?>
+      <div class="pg-t"><p class="pg-eye"><?= e($p['subject']) ?></p><h1><?= e($p['title']) ?></h1></div>
+    </div>
     <p><?= e(plural($offerCount, 'offer', 'offers')) ?> so far</p>
     <?php if ($isComm && !$mine): $sv = saved_map($me['id'], [$id]); echo save_button($id, isset($sv[$id]), here(), true); endif; ?>
   </div>
@@ -126,7 +128,7 @@ $dv = $f['deliver_by'] ? date('Y-m-d\TH:i', strtotime($f['deliver_by'])) : '';
             <div class="offer-side">
               <div class="price"><?= money($o['price']) ?></div>
               <?php if ($p['status'] === 'open' && !$o['order_status']): ?>
-                <form method="post" action="order_action.php" onsubmit="return confirm('Accept this offer?')">
+                <form method="post" action="order_action.php" data-confirm="Accept this offer?">
                   <input type="hidden" name="csrf" value="<?= csrf_token() ?>">
                   <input type="hidden" name="action" value="accept">
                   <input type="hidden" name="offer_id" value="<?= (int)$o['id'] ?>">
@@ -163,7 +165,7 @@ $dv = $f['deliver_by'] ? date('Y-m-d\TH:i', strtotime($f['deliver_by'])) : '';
         </form>
         <?php if ($myOffer): ?>
           <form method="post" action="offer.php" style="margin-top:.75rem"
-                onsubmit="return confirm('Withdraw your offer?')">
+                data-confirm="Withdraw your offer?">
             <input type="hidden" name="csrf" value="<?= csrf_token() ?>">
             <input type="hidden" name="post_id" value="<?= $id ?>">
             <input type="hidden" name="action" value="withdraw">

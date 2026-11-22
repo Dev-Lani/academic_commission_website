@@ -14,7 +14,13 @@ $post = $q->fetch();
 if (!$post || $post['status'] !== 'open') { header('Location: forum.php'); exit; }
 
 if (($_POST['action'] ?? '') === 'withdraw') {
+  // An offer that became an order must stay: deleting it cascades to the order, ledger and chat log.
+  $has = $pdo->prepare('SELECT 1 FROM orders o JOIN offers f ON f.id=o.offer_id WHERE f.post_id=? AND f.user_id=? LIMIT 1');
+  $has->execute([$pid, $me['id']]);
+  if ($has->fetch()) { $_SESSION['flash_err'] = 'This offer already became an order, so it can\'t be withdrawn.'; header('Location: ' . $back); exit; }
   $pdo->prepare('DELETE FROM offers WHERE post_id=? AND user_id=?')->execute([$pid, $me['id']]);
+  // No offers left = remove the stale "new offers" notification (fixes the badge mismatch, see #10)
+  $pdo->prepare("DELETE FROM notifications WHERE post_id=? AND type='offer' AND NOT EXISTS (SELECT 1 FROM offers WHERE post_id=?)")->execute([$pid, $pid]);
   header('Location: ' . $back . '&msg=withdrawn'); exit;
 }
 

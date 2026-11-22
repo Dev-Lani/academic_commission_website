@@ -132,8 +132,7 @@ $noteLabels = ['offer' => 'New offers on', 'accepted' => 'Offer accepted on', 'a
       <button type="button" class="sb-sh" aria-expanded="true" data-sec="account"><span>Account</span>
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="m6 15 6-6 6 6"/></svg></button>
       <div class="sb-list" id="sbl-account">
-        <a class="sb-it" href="<?= BASE_URL ?>profile.php?u=<?= urlencode($me['username']) ?>" title="My profile"><?= $sbIco('user') ?><span class="lbl">My profile</span></a>
-        <?php if ($me['role'] === 'commissioner'): ?><a class="sb-it<?= $navPage === 'edit_profile.php' ? ' on' : '' ?>" href="<?= BASE_URL ?>edit_profile.php" title="Edit bio &amp; skills"><?= $sbIco('user') ?><span class="lbl">Bio &amp; skills</span></a><?php endif; ?>
+        <a class="sb-it<?= in_array($navPage, ['profile.php', 'edit_profile.php'], true) ? ' on' : '' ?>" href="<?= BASE_URL ?>profile.php?u=<?= urlencode($me['username']) ?>" title="My profile"><?= $sbIco('user') ?><span class="lbl">My profile</span></a>
         <a class="sb-it" href="<?= BASE_URL ?>inbox.php" title="Notifications"><?= $sbIco('bell') ?><span class="lbl">Notifications</span>
           <?php if ($unread): ?><span class="badge"><?= (int)$unread ?></span><?php endif; ?></a>
         <a class="sb-it" href="<?= BASE_URL ?>logout.php" title="Log out"><?= $sbIco('out') ?><span class="lbl">Log out</span></a>

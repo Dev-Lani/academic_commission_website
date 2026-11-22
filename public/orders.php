@@ -240,7 +240,7 @@ $escrowText = ['none' => 'Escrow not funded yet', 'held' => 'Escrow held', 'rele
               <a class="o-msg" href="messages.php?id=<?= (int)$o['id'] ?>"><span class="badge o-badge"><?= $unread ?></span><?= e(plural($unread, 'new message', 'new messages')) ?></a>
             <?php endif; ?>
             <?php if ($isComm && $status === 'pending_agree'): ?>
-              <form method="post" action="order_action.php" class="o-inline" onsubmit="return confirm('Decline this order?')">
+                <form method="post" action="order_action.php" class="o-inline" data-confirm="Decline this order?">
                 <input type="hidden" name="csrf" value="<?= csrf_token() ?>">
                 <input type="hidden" name="order_id" value="<?= (int)$o['id'] ?>">
                 <button class="btn ghost" name="action" value="decline">Decline</button>

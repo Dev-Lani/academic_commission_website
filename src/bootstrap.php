@@ -2,6 +2,10 @@
 // Loaded first by every page: config, session, database, then all helpers.
 require_once __DIR__ . '/config.php';
 
+$sessDir = STORAGE_PATH . 'sessions';
+if (!is_dir($sessDir)) @mkdir($sessDir, 0775, true);
+if (is_dir($sessDir) && is_writable($sessDir)) session_save_path($sessDir);
+session_set_cookie_params(['path' => '/', 'httponly' => true, 'samesite' => 'Lax']);
 session_start();
 date_default_timezone_set(APP_TIMEZONE);
 

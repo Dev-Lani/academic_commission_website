@@ -69,10 +69,10 @@ if ($o['status'] === 'completed') {
 <body>
 <?php include TEMPLATE_PATH . 'nav.php'; ?>
 <main class="wrap">
-  <div class="page-head">
-    <p><a href="orders.php">My orders</a></p>
-    <h1><?= e($o['title']) ?></h1>
-    <p><?= $openRev && $o['status'] === 'active' ? '<span class="tag warn">Revision requested</span>' : status_tag($o['status']) ?></p>
+  <div class="pg-head">
+    <?= back_button('orders.php', 'Back to my orders') ?>
+    <div class="pg-t"><p class="pg-eye">My orders</p><h1><?= e($o['title']) ?></h1></div>
+    <span class="pg-tag"><?= $openRev && $o['status'] === 'active' ? '<span class="tag warn">Revision requested</span>' : status_tag($o['status']) ?></span>
   </div>
 
   <div class="layout">
@@ -90,7 +90,7 @@ if ($o['status'] === 'completed') {
             <input type="hidden" name="csrf" value="<?= csrf_token() ?>">
             <input type="hidden" name="order_id" value="<?= $id ?>">
             <button class="btn sm" name="action" value="agree">Agree and start</button>
-            <button class="btn ghost" name="action" value="decline" onclick="return confirm('Decline this order?')">Decline</button>
+<button class="btn ghost" name="action" value="decline" data-confirm="Decline this order?">Decline</button>
           </form>
         <?php else: ?>
           <h2>Waiting for <?= e($o['comm_name']) ?></h2>
@@ -121,7 +121,7 @@ if ($o['status'] === 'completed') {
           <p class="muted">Upload the final file and a preview (PDF, PNG, or JPG, max 10 MB each). The client sees only the preview, view-only and for <?= PREVIEW_MIN ?> minutes. The final file unlocks when they approve.</p>
           <?php if ($flashErr): ?><div class="alert err" role="alert"><?= e($flashErr) ?></div><?php endif; ?>
           <form method="post" action="deliver.php" enctype="multipart/form-data" class="deliver-form"
-                onsubmit="return confirm('Deliver now? You can\'t replace the files afterwards.')">
+                data-confirm="Deliver now? You can't replace the files afterwards.">
             <input type="hidden" name="csrf" value="<?= csrf_token() ?>">
             <input type="hidden" name="order_id" value="<?= $id ?>">
             <div class="field"><label class="lbl" for="final">Final file</label>
@@ -160,7 +160,7 @@ if ($o['status'] === 'completed') {
               <form method="post" action="order_action.php">
                 <input type="hidden" name="csrf" value="<?= csrf_token() ?>">
                 <input type="hidden" name="order_id" value="<?= $id ?>">
-                <button class="btn sm" name="action" value="approve" onclick="return confirm('Approve and release payment? This can\'t be undone.')">Approve and release payment</button>
+                <button class="btn sm" name="action" value="approve" data-confirm="Approve and release payment? This can't be undone.">Approve and release payment</button>
               </form>
             </div>
             <?php if ($revLeft > 0): ?>
@@ -173,7 +173,7 @@ if ($o['status'] === 'completed') {
                   ? 'Say exactly what to fix. ' . e($o['comm_name']) . ' gets ' . REVISION_HOURS . ' hours to deliver it. Payment stays in escrow. Revision ' . (count($revs) + 1) . ' of ' . MAX_REVISIONS . '.'
                   : 'Open the preview first. You can only ask for changes on work you have looked at.' ?></p></div>
               <button class="btn sm ghost" name="action" value="revision" <?= $o['preview_started_at'] ? '' : 'disabled' ?>
-                onclick="return confirm('Send this revision request? The work goes back to the commissioner.')">Request revision</button>
+                data-confirm="Send this revision request? The work goes back to the commissioner.">Request revision</button>
             </form>
             <?php else: ?>
             <p class="muted rv-used">You have used all <?= MAX_REVISIONS ?> revision requests for this order. You can approve the work or open a dispute.</p>
@@ -187,7 +187,7 @@ if ($o['status'] === 'completed') {
                   ? 'Say what is wrong. An admin reviews it and your payment stays in escrow.'
                   : 'Open the preview first. You can only dispute work you have looked at.' ?></p></div>
               <button class="btn sm danger" name="action" value="dispute" <?= $o['preview_started_at'] ? '' : 'disabled' ?>
-                onclick="return confirm('Send this to admin review?')">Open dispute</button>
+                data-confirm="Send this to admin review?">Open dispute</button>
             </form>
           </div>
         <?php endif; ?>
@@ -291,12 +291,33 @@ if ($o['status'] === 'completed') {
         </section>
       <?php endif; ?>
 
-    <?php else: ?>
-      <section class="panel panel-pad">
-        <h2><?= $o['status'] === 'expired' ? 'No response in time' : e(ucfirst($o['status'])) ?></h2>
-        <p>This order did not go ahead.
-          <?= $isComm ? '' : 'Your request is open again, so you can pick another offer.' ?></p>
-        <a class="btn ghost" href="post.php?id=<?= (int)$o['post_id'] ?>">Back to the request</a>
+    <?php else:
+      $ocTitle = ['declined' => 'This order was declined', 'expired' => 'No response in time', 'cancelled' => 'This order was cancelled'][$o['status']] ?? ucfirst($o['status']);
+      $ocEnd   = ['declined' => 'Declined', 'expired' => 'Expired', 'cancelled' => 'Cancelled'][$o['status']] ?? ucfirst($o['status']);
+      $ocEndAt = $o['completed_at'] ?: ($o['status'] === 'expired' ? $o['agree_by'] : null);
+      $ocSteps = [['Accepted', $o['accepted_at'], '']];
+      if ($o['started_at'])   $ocSteps[] = ['Started', $o['started_at'], ''];
+      if ($o['delivered_at']) $ocSteps[] = ['Delivered', $o['delivered_at'], ''];
+      $ocSteps[] = [$ocEnd, $ocEndAt, 'bad'];
+    ?>
+      <section class="panel oc-card">
+        <div class="oc-state">
+          <span class="oc-ico" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M9 9l6 6M15 9l-6 6"/></svg></span>
+          <div>
+            <h2><?= e($ocTitle) ?></h2>
+            <p>This order did not go ahead.<?= $o['escrow_status'] === 'refunded' ? ' The payment was returned to the client from escrow.' : '' ?>
+              <?= $isComm ? '' : 'Your request is open again, so you can pick another offer.' ?></p>
+          </div>
+        </div>
+        <div><?= back_pill('post.php?id=' . (int)$o['post_id'], 'Back to the request') ?></div>
+      </section>
+      <section class="panel oc-card">
+        <h2 class="oc-h">Progress</h2>
+        <ol class="oc-tl">
+          <?php foreach ($ocSteps as [$lab, $at, $cls]): ?>
+            <li<?= $cls ? ' class="' . $cls . '"' : '' ?>><b><?= e($lab) ?></b><?= $at ? '<small>' . e(date('M j, g:i A', strtotime($at))) . '</small>' : '' ?></li>
+          <?php endforeach; ?>
+        </ol>
       </section>
     <?php endif; ?>
 
@@ -347,13 +368,13 @@ if ($o['status'] === 'completed') {
       </section>
     </div>
     <?php else: ?>
-    <aside class="panel">
+    <aside class="panel od">
       <h2>Order details</h2>
       <div class="profile"><dl>
         <div><dt><?= $isComm ? 'Client' : 'Commissioner' ?></dt><dd><a href="profile.php?u=<?= urlencode($other) ?>"><?= e($other) ?></a></dd></div>
         <div><dt>Price</dt><dd><?= money($o['price']) ?></dd></div>
         <?php if ($o['escrow_status'] !== 'none'): ?>
-          <div><dt>Escrow</dt><dd><?= e($escrow) ?></dd></div>
+          <div><dt>Escrow</dt><dd><span class="od-esc <?= e($o['escrow_status']) ?>"><?= e($escrow) ?></span></dd></div>
         <?php endif; ?>
         <div><dt>Deliver by</dt><dd><?= e(date('M j, Y g:i A', strtotime($o['deliver_by']))) ?></dd></div>
         <div><dt>Accepted</dt><dd><?= e(date('M j, g:i A', strtotime($o['accepted_at']))) ?></dd></div>

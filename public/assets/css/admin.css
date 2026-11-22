@@ -116,3 +116,14 @@
   .ad-case .ad-btn{width:100%}
   .ad-users li{flex-wrap:wrap}
 }
+/* ---------- Buttons inside cards: read as buttons, not text ----------
+   The default border (--line, 14% alpha) vanishes on a white card. */
+.ad-card .ad-btn{border-color:#9AA3C4;background:#F1F3FA;box-shadow:0 1px 2px rgb(27 35 64 / .15);font-weight:600}
+.ad-card .ad-btn:hover{background:#E4E8F6;border-color:var(--brand);color:var(--brand-dark)}
+.ad-card .ad-btn:active{transform:scale(.97)}
+.ad-card .ad-btn.pri{background:var(--brand);border-color:var(--brand);color:#fff}
+.ad-card .ad-btn.pri:hover{background:var(--brand-dark);border-color:var(--brand-dark);color:#fff}
+.ad-users .ad-btn{min-width:5.5rem}
+/* "Verify" (unverified accounts) is the main action in its row; "Remove" stays neutral */
+.ad-users li[data-ver="0"] .ad-btn{background:var(--brand);border-color:var(--brand);color:#fff}
+.ad-users li[data-ver="0"] .ad-btn:hover{background:var(--brand-dark);border-color:var(--brand-dark);color:#fff}

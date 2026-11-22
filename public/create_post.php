@@ -42,8 +42,10 @@ if ($old['pages'] === '') $old['pages'] = '5';
 <?php include TEMPLATE_PATH . 'nav.php'; ?>
 <main class="wrap">
   <div class="page-head">
-    <p><a href="forum.php">Forum</a> / New request</p>
-    <h1>Create a request</h1>
+    <div class="pg-head">
+      <?= back_button('forum.php', 'Back to the forum') ?>
+      <div class="pg-t"><p class="pg-eye">New request</p><h1>Create a request</h1></div>
+    </div>
     <p>Commissioners will send you private offers with their own price. The clearer the request, the better the offers.</p>
   </div>
   <?php if ($err): ?><div class="alert err" role="alert"><?= e($err) ?></div><?php endif; ?>

@@ -51,33 +51,40 @@ $msg = $_GET['msg'] ?? '';
 <html lang="en"><head><title>Edit your profile · Academic Commission</title><?php include TEMPLATE_PATH . 'head.php'; ?></head>
 <body>
 <?php include TEMPLATE_PATH . 'nav.php'; ?>
-<main class="wrap">
+<main class="wrap ep">
   <div class="page-head">
     <h1>Your bio &amp; skills</h1>
     <p>Clients see this on your profile and next to your offers, so they have more than a message and a rating to go on.</p>
   </div>
 
-  <section class="panel form-panel">
+  <section class="panel ep-card">
     <?php if ($msg === 'saved'): ?><div class="alert ok">Saved. <a href="profile.php?u=<?= urlencode($me['username']) ?>">View your profile</a></div><?php endif; ?>
     <?php if ($err): ?><div class="alert err" role="alert"><?= e($err) ?></div><?php endif; ?>
     <form method="post">
       <input type="hidden" name="csrf" value="<?= csrf_token() ?>">
-      <div class="field">
+
+      <div class="ep-sec">
         <label class="lbl" for="bio">Short bio</label>
         <textarea id="bio" name="bio" maxlength="<?= BIO_MAX ?>" placeholder="e.g. 3rd-year BS Psychology student. I write clear, well-cited essays and I always deliver on time."><?= e($bio) ?></textarea>
-        <p class="hint">Up to <?= BIO_MAX ?> characters. No links, emails or phone numbers.</p>
+        <p class="hint ep-line"><span>No links, emails or phone numbers.</span><span id="bio-count">0 / <?= BIO_MAX ?></span></p>
       </div>
-      <div class="field">
-        <span class="lbl" id="skills-lbl">Subjects you are good at (pick up to <?= SKILLS_MAX ?>)</span>
+
+      <div class="ep-sec ep-div">
+        <div class="ep-sk">
+          <span class="lbl" id="skills-lbl">Subjects you are good at (pick up to <?= SKILLS_MAX ?>)</span>
+          <span class="ep-pill" id="cp-count" aria-live="polite"></span>
+        </div>
         <div class="cp-pick" role="group" aria-labelledby="skills-lbl">
           <?php foreach ($subjects as $s): $sid = (int)$s['id']; ?>
             <label class="cp-opt"><input type="checkbox" name="skills[]" value="<?= $sid ?>"<?= in_array($sid, $picked, true) ? ' checked' : '' ?>><span><?= e($s['name']) ?></span></label>
           <?php endforeach; ?>
         </div>
-        <p class="hint" id="cp-count" aria-live="polite"></p>
       </div>
-      <button class="btn">Save</button>
-      <a class="btn ghost" href="profile.php?u=<?= urlencode($me['username']) ?>">Cancel</a>
+
+      <div class="ep-foot">
+        <a class="btn ghost" href="profile.php?u=<?= urlencode($me['username']) ?>">Cancel</a>
+        <button class="btn">Save changes</button>
+      </div>
     </form>
   </section>
 </main>
@@ -92,6 +99,12 @@ $msg = $_GET['msg'] ?? '';
   }
   boxes.forEach(function(b){ b.addEventListener('change', sync); });
   sync();
+
+  // Live character count for the bio
+  var bio = document.getElementById('bio'), cnt = document.getElementById('bio-count');
+  function count(){ cnt.textContent = bio.value.length + ' / <?= BIO_MAX ?>'; }
+  bio.addEventListener('input', count);
+  count();
 })();
 </script>
 </body></html>

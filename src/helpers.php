@@ -198,3 +198,21 @@ function mid_trunc($s, $tail = 10){
   if (mb_strlen($s) <= $tail + 6) return e($s);
   return '<span class="mt" title="' . e($s) . '"><span class="mt-h">' . e(mb_substr($s, 0, -$tail)) . '</span><span class="mt-t">' . e(mb_substr($s, -$tail)) . '</span></span>';
 }
+
+/* ---------- Back buttons ---------- */
+
+// Round arrow button. With $showText = true the label is printed next to it.
+// Use $label for the screen-reader name ("Back to my orders").
+function back_button($href, $label = 'Back', $showText = false){
+  $ic = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>';
+  if ($showText) {
+    return '<a class="back-row" href="' . e($href) . '"><span class="back-btn" aria-hidden="true">' . $ic . '</span><span>' . e($label) . '</span></a>';
+  }
+  return '<a class="back-btn" href="' . e($href) . '" aria-label="' . e($label) . '" title="' . e($label) . '">' . $ic . '</a>';
+}
+
+// Pill button with a small arrow, for "Back to the request" inside a card.
+function back_pill($href, $label){
+  $ic = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>';
+  return '<a class="back-pill" href="' . e($href) . '">' . $ic . '<span>' . e($label) . '</span></a>';
+}

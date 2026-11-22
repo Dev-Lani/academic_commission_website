@@ -47,3 +47,26 @@
 .cp-opt input:checked+span{background:var(--brand);border-color:var(--brand);color:#fff}
 .cp-opt input:focus-visible+span{outline:2px solid var(--brand);outline-offset:2px}
 .cp-opt input:disabled+span{opacity:.45;cursor:not-allowed}
+
+/* Edit bio & skills (edit_profile.php). Classes start with ep- */
+.ep>*{max-width:760px;margin-inline:auto}
+.ep-card{padding:1.75rem;border-radius:16px}
+.ep-sec .lbl{margin-bottom:.5rem;font-size:.95rem}
+.ep-sec textarea{height:8rem;min-height:8rem;line-height:1.5}
+.ep-line{display:flex;justify-content:space-between;gap:1rem;margin-top:.5rem}
+.ep-div{margin-top:1.6rem;padding-top:1.6rem;border-top:1px solid var(--line-soft)}
+.ep-sk{display:flex;justify-content:space-between;align-items:baseline;gap:1rem;margin-bottom:.75rem}
+.ep-sk .lbl{margin:0}
+.ep-pill{flex:none;padding:.15rem .75rem;border-radius:99px;background:#EEF0FD;color:var(--brand-dark);font-size:.82rem;font-weight:600;white-space:nowrap}
+.ep .cp-pick{gap:.6rem;margin-top:0}
+.ep .cp-opt span{display:inline-flex;align-items:center;height:38px;padding:0 .95rem;font-size:.9rem;font-weight:500}
+.ep .cp-opt span:hover{border-color:#9AA3C4}
+.ep-foot{display:flex;justify-content:flex-end;align-items:center;gap:.75rem;margin-top:1.75rem;padding-top:1.4rem;border-top:1px solid var(--line-soft)}
+html body .ep-foot .btn{width:auto;min-height:46px;padding:0 1.8rem;display:inline-flex;align-items:center;justify-content:center;border-radius:10px}
+html body .ep-foot .btn.ghost{padding:0 1.5rem}
+@media (max-width:560px){
+  .ep-card{padding:1.1rem}
+  .ep-sk{flex-direction:column;align-items:flex-start;gap:.4rem}
+  .ep-foot{flex-direction:column-reverse}
+  html body .ep-foot .btn{width:100%}
+}

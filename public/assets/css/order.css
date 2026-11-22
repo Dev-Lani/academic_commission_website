@@ -13,3 +13,33 @@ input[type=file]{width:100%;padding:.55rem;font:inherit;background:var(--paper);
 .viewer iframe{width:100%;height:100%;border:0}
 .viewer img{max-width:100%;max-height:100%;margin:auto;display:block}
 .wm{position:absolute;inset:0;pointer-events:none;background-repeat:repeat}
+
+/* Order that did not go ahead (declined, expired, cancelled) */
+.oc-card{padding:1.5rem;display:grid;gap:1.25rem}
+.oc-state{display:flex;gap:1rem;align-items:flex-start}
+.oc-ico{width:48px;height:48px;border-radius:50%;background:var(--bad-bg);color:var(--bad);display:grid;place-items:center;flex:none}
+.oc-state h2{margin:0 0 .25rem;padding:0;border:0;font-size:1.3rem}
+.oc-state p{margin:0;color:var(--muted)}
+.oc-tl{list-style:none;margin:0;padding:0}
+.oc-tl li{position:relative;padding:0 0 1.25rem 2rem}
+.oc-tl li:last-child{padding-bottom:0}
+.oc-tl li::before{content:"";position:absolute;left:0;top:.3rem;width:14px;height:14px;border-radius:50%;background:var(--brand)}
+.oc-tl li::after{content:"";position:absolute;left:6px;top:1.3rem;bottom:-.2rem;width:2px;background:var(--brand)}
+.oc-tl li:last-child::after{display:none}
+.oc-tl li.bad::before{background:var(--bad)}
+.oc-tl li.bad b{color:var(--bad)}
+.oc-tl b{display:block;font-weight:600}
+.oc-tl small{color:var(--muted);font-size:.88rem}
+.oc-h{margin:0 0 1.1rem;padding:0;border:0;font-size:1.1rem}
+
+/* Order details panel: even rows with dividers */
+.od{padding-bottom:.5rem}
+.od .profile dl{gap:0}
+.od .profile dl>div{display:flex;justify-content:space-between;align-items:center;gap:1rem;padding:.7rem 0;border-bottom:1px solid var(--line-soft)}
+.od .profile dl>div:last-child{border-bottom:0}
+.od dt{margin:0}
+.od dd{text-align:right}
+.od-esc{display:inline-block;padding:.1rem .7rem;border-radius:99px;font-size:.82rem;font-weight:600;background:#EDEFF6;color:var(--muted)}
+.od-esc.refunded,.od-esc.released{background:var(--ok-bg);color:#14603f}
+.od-esc.held{background:var(--hl);color:#4a3d00}
+@media (max-width:560px){.oc-card{padding:1.1rem}}

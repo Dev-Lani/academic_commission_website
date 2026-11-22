@@ -168,11 +168,11 @@
       fetch('chat.php', { method: 'POST', body: fd, headers: { 'X-Requested-With': 'fetch' } })
         .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
         .then(function (x) {
-          if (!x.ok) { alert(x.d.error || 'Could not send.'); return; }
+          if (!x.ok) { window.toast(x.d.error || 'Could not send.', 'err'); return; }
           ta.value = '';
           return poll().then(function () { log.scrollTop = log.scrollHeight; });
         })
-        .catch(function () { alert('Could not send. Check your connection.'); })
+        .catch(function () { window.toast('Could not send. Check your connection.', 'err'); })
         .then(function () { send.disabled = false; ta.focus(); });
     }
     if (form) {

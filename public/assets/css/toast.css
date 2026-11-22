@@ -1,0 +1,40 @@
+/* Toasts (top-right, ring timer, fade out) + confirm dialog. */
+
+/* Inline success/error boxes no longer push the layout: toast.js shows them as toasts instead.
+   Add the data-keep attribute to an .alert you really want to stay inline. */
+.tt-on .alert:not([data-keep]){display:none!important}
+
+.tt-host{position:fixed;z-index:200;top:calc(60px + .75rem);right:1rem;width:min(22rem,calc(100vw - 2rem));
+  display:flex;flex-direction:column;gap:.55rem;pointer-events:none}
+.tt{pointer-events:auto;display:flex;align-items:center;gap:.75rem;padding:.7rem .8rem .7rem .7rem;
+  background:var(--surface);border:1px solid var(--line);border-radius:14px;
+  box-shadow:0 12px 28px rgb(27 35 64 / .18);font-size:.92rem;line-height:1.4;
+  animation:tt-in .28s cubic-bezier(.2,.8,.2,1) backwards;
+  transition:opacity .3s ease,transform .3s ease}
+.tt.out{opacity:0;transform:translateX(32px)}
+
+/* ring timer around the icon */
+.tt-ic{flex:none;width:34px;height:34px;color:var(--ok)}
+.tt-err .tt-ic{color:var(--bad)}
+.tt-info .tt-ic{color:var(--brand)}
+.tt-ic svg{display:block}
+.tt-ic .trk{stroke:#DDE3EE}
+.tt-ic .ring{stroke:currentColor;stroke-dasharray:63;stroke-dashoffset:0;animation:tt-ring linear forwards}
+.tt.paused .ring{animation-play-state:paused}
+@keyframes tt-ring{from{stroke-dashoffset:0}to{stroke-dashoffset:63}}
+
+.tt-b{flex:1;min-width:0;overflow-wrap:anywhere}
+.tt-b a{font-weight:600}
+.tt-x{flex:none;width:28px;height:28px;border:0;border-radius:8px;background:transparent;color:var(--muted);font-size:1.15rem;line-height:1;cursor:pointer}
+.tt-x:hover{background:#EDEFF6;color:var(--ink)}
+@keyframes tt-in{from{opacity:0;transform:translateX(24px)}}
+@media (max-width:820px){.tt-host{right:.75rem;left:.75rem;width:auto}}
+@media (prefers-reduced-motion:reduce){.tt{animation:none;transition:none}.tt-ic .ring{animation:none}}
+
+/* confirm dialog */
+.cd{position:fixed;inset:0;z-index:210;display:grid;place-items:center;padding:1rem;background:rgb(27 35 64 / .45);animation:cd-fade .15s both}
+.cd-box{width:min(24rem,100%);background:var(--surface);border-radius:16px;padding:1.4rem 1.4rem 1.1rem;box-shadow:0 18px 44px rgb(27 35 64 / .25)}
+.cd-box p{margin:0 0 1.1rem;font-size:1rem}
+.cd-act{display:flex;justify-content:flex-end;gap:.6rem}
+.cd-act .btn{width:auto;min-height:42px;padding:0 1.2rem}
+@keyframes cd-fade{from{opacity:0}}

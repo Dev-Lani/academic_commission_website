@@ -63,11 +63,11 @@
     fetch('chat.php', { method: 'POST', body: new FormData(form), headers: { 'X-Requested-With': 'fetch' } })
       .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
       .then(function (x) {
-        if (!x.ok) { alert(x.d.error || 'Could not send.'); return; }
+        if (!x.ok) { toast(x.d.error || 'Could not send.', 'err'); return; }
         ta.value = '';
         return poll().then(toBottom);
       })
-      .catch(function () { alert('Could not send. Check your connection.'); })
+      .catch(function () { toast('Could not send. Check your connection.', 'err'); })
       .then(function () { btn.disabled = false; ta.focus(); });
   }
 

@@ -192,6 +192,7 @@ $ic = [
   'grid'   => '<rect x="4" y="4" width="7" height="7" rx="1"/><rect x="13" y="4" width="7" height="7" rx="1"/><rect x="4" y="13" width="7" height="7" rx="1"/><rect x="13" y="13" width="7" height="7" rx="1"/>',
   'list'   => '<path d="M4 6h16M4 12h16M4 18h16"/>',
   'x'      => '<path d="M6 6l12 12M18 6 6 18"/>',
+  'search' => '<circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/>',
   'down'   => '<path d="m6 9 6 6 6-6"/>',
   'prev'   => '<path d="m15 5-7 7 7 7"/>',
   'next'   => '<path d="m9 5 7 7-7 7"/>',
@@ -215,6 +216,95 @@ $svg = fn($n, $sz = 16, $sw = 1.8) => '<svg width="' . $sz . '" height="' . $sz 
     </form>
     <?php if ($me['role'] === 'client'): ?><a class="btn" href="create_post.php<?= $subject ? '?s=' . e($slug) : '' ?>">+ New request</a><?php endif; ?>
   </div>
+
+  <?php $fN = ($type !== '' ? 1 : 0) + ($offers !== '' ? 1 : 0) + ($kind !== '' ? 1 : 0) + (($from || $due !== '') ? 1 : 0); ?>
+  <section class="fm" id="fm" aria-label="Search and filters">
+    <div class="fm-bar">
+      <button type="button" class="fm-ic" id="fm-s-open" aria-label="Search requests"><?= $svg('search', 20, 2) ?></button>
+
+      <details class="ff-dd fm-dd">
+        <summary class="fm-btn<?= $subject ? ' on' : '' ?>"><span><?= $subject ? e($subject['name']) : 'All subjects' ?></span><?= $svg('down', 14, 2.2) ?></summary>
+        <div class="ff-mn fm-mn"><div class="ff-sc"><div class="ff-ls">
+          <a class="ff-o<?= !$subject ? ' on' : '' ?>" href="<?= e($url(['s' => ''])) ?>"><span>All subjects</span><small><?= (int)$totalOpen ?></small></a>
+          <?php foreach ($subjects as $s): ?>
+            <a class="ff-o<?= $subject && $slug === $s['slug'] ? ' on' : '' ?>" href="<?= e($url(['s' => $s['slug']])) ?>"><span><?= e($s['name']) ?></span><small><?= (int)$s['n'] ?></small></a>
+          <?php endforeach; ?>
+        </div></div></div>
+      </details>
+
+      <details class="ff-dd fm-dd">
+        <summary class="fm-btn<?= $fN ? ' on' : '' ?>"><span>Filters</span><?php if ($fN): ?><i class="fm-n"><?= (int)$fN ?></i><?php endif; ?><?= $svg('down', 14, 2.2) ?></summary>
+        <form class="ff-mn fm-mn" method="get" action="forum.php">
+          <?php hidden_fields(['s' => $cur['s'], 'q' => $qtext, 'sort' => $cur['sort'], 'view' => $cur['view']]); ?>
+          <div class="fm-pn">
+            <span class="fm-l">Kind of task</span>
+            <div class="fm-seg">
+              <?php foreach (['' => 'All', 'academic' => 'School work', 'general' => 'Everyday'] as $k => $label): ?>
+                <label><input type="radio" name="kind" value="<?= e($k) ?>"<?= $kind === $k ? ' checked' : '' ?>><span><?= e($label) ?></span></label>
+              <?php endforeach; ?>
+            </div>
+
+            <span class="fm-l">Deadline</span>
+            <?php if ($from): ?>
+              <input type="hidden" name="from" value="<?= e($cur['from']) ?>"><input type="hidden" name="to" value="<?= e($cur['to']) ?>">
+              <p class="fm-note">Dates: <?= e($rangeLabel) ?>. <a href="<?= e($url(['from' => '', 'to' => ''])) ?>">Clear dates</a> to use the quick options.</p>
+            <?php else: ?>
+              <div class="ff-ls">
+                <?php foreach (['' => 'Any time'] + $dueLabels as $k => $label): ?>
+                  <label class="ff-o"><input type="radio" name="due" value="<?= e($k) ?>"<?= $due === $k ? ' checked' : '' ?>><span><?= e($label) ?></span></label>
+                <?php endforeach; ?>
+              </div>
+            <?php endif; ?>
+
+            <label class="fm-l" for="fm-type">Type of work</label>
+            <select id="fm-type" name="type">
+              <option value="">Any type</option>
+              <?php foreach (post_type_groups() as $grp): ?>
+                <optgroup label="<?= e($grp['label']) ?>">
+                  <?php foreach ($grp['types'] as $t): ?>
+                    <option value="<?= e($t) ?>"<?= $type === $t ? ' selected' : '' ?>><?= e($t) ?> (<?= (int)($typeCounts[$t] ?? 0) ?>)</option>
+                  <?php endforeach; ?>
+                </optgroup>
+              <?php endforeach; ?>
+            </select>
+
+            <label class="fm-l" for="fm-offers">Offers</label>
+            <select id="fm-offers" name="offers">
+              <?php foreach (['' => 'Any'] + $offerLabels as $k => $label): ?>
+                <option value="<?= e($k) ?>"<?= $offers === $k ? ' selected' : '' ?>><?= e($label) ?></option>
+              <?php endforeach; ?>
+            </select>
+          </div>
+          <div class="ff-fo"><a class="ff-rs" href="<?= e($url(['kind' => '', 'type' => '', 'offers' => '', 'due' => '', 'from' => '', 'to' => ''])) ?>">Reset</a><button class="ff-ap">Apply</button></div>
+        </form>
+      </details>
+
+      <details class="ff-dd fm-dd fm-sort">
+        <summary class="fm-ic" aria-label="Sort: <?= e($sorts[$sort]) ?>"><?= $svg('sort') ?></summary>
+        <div class="ff-mn fm-mn r"><div class="ff-ls ff-pad">
+          <?php foreach ($sorts as $k => $label): ?>
+            <a class="ff-o<?= $sort === $k ? ' on' : '' ?>" href="<?= e($url(['sort' => $k === 'top' ? '' : $k])) ?>"><span><?= e($label) ?></span></a>
+          <?php endforeach; ?>
+        </div></div>
+      </details>
+    </div>
+
+    <form class="fm-search" method="get" action="forum.php" role="search" hidden>
+      <?php hidden_fields(['s' => $cur['s'], 'type' => $type, 'kind' => $kind, 'offers' => $offers, 'due' => $due,
+                           'from' => $cur['from'], 'to' => $cur['to'], 'sort' => $cur['sort'], 'view' => $cur['view']]); ?>
+      <button type="button" class="fm-ic" id="fm-s-close" aria-label="Close search"><?= $svg('prev', 20, 2) ?></button>
+      <input type="search" name="q" value="<?= e($qtext) ?>" maxlength="80" placeholder="Search requests or keywords" aria-label="Search requests" enterkeyhint="search">
+      <button class="fm-ic fm-go" aria-label="Search"><?= $svg('search', 20, 2) ?></button>
+    </form>
+
+    <div class="fm-sum">
+      <b><?= e(plural($total, 'request', 'requests')) ?></b>
+      <?php foreach ($tags as [$lab, $href]): ?>
+        <span class="ff-tag"><?= e($lab) ?><a href="<?= e($href) ?>" aria-label="Remove filter: <?= e($lab) ?>"><?= $svg('x', 12, 2.5) ?></a></span>
+      <?php endforeach; ?>
+      <?php if ($tags): ?><a class="ff-lnk" href="<?= e($clearAll) ?>">Clear all</a><?php endif; ?>
+    </div>
+  </section>
 
   <nav class="subj-row" aria-label="Subjects">
     <a class="fcl<?= !$subject ? ' on' : '' ?>" href="<?= e($url(['s' => ''])) ?>">All <i><?= (int)$totalOpen ?></i></a>

@@ -56,13 +56,13 @@ if ($live) {
 <body>
 <?php include TEMPLATE_PATH . 'nav.php'; ?>
 <main class="wrap">
-  <div class="page-head">
-    <p><a href="<?= e($back) ?>">Back to order</a></p>
-    <h1><?= e($o['title']) ?></h1>
+  <div class="pg-head">
+    <?= back_button($back, 'Back to the order') ?>
+    <div class="pg-t"><p class="pg-eye">Preview</p><h1><?= e($o['title']) ?></h1></div>
   </div>
 
 <?php if ($live): ?>
-  <p class="alert ok">View-only preview. It closes <span data-sec="1" data-prefix="in " data-deadline="<?= e(date('c', $exp)) ?>"></span>.
+  <p class="alert ok" data-keep>View-only preview. It closes <span data-sec="1" data-prefix="in " data-deadline="<?= e(date('c', $exp)) ?>"></span>.
     Every view is logged. Go back to the order to approve or dispute.</p>
   <div class="viewer" oncontextmenu="return false">
     <?php if ($o['preview_mime'] === 'application/pdf'): ?>

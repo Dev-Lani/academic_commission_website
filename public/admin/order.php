@@ -67,7 +67,9 @@ function ao_ago($ts){
 <?php include TEMPLATE_PATH . 'nav.php'; ?>
 <main class="wrap">
 
-  <a class="ad-back" href="index.php">&larr; All disputes</a>
+  <?php if (!empty($_SESSION['flash_err'])): ?><div class="alert err" role="alert"><?= e($_SESSION['flash_err']) ?></div><?php unset($_SESSION['flash_err']); endif; ?>
+
+  <?= back_button('index.php', 'All disputes', true) ?>
 
   <section class="ad-hero ao-hero">
     <div class="ad-hero-t">
@@ -131,7 +133,7 @@ function ao_ago($ts){
       <section class="ad-card ao-decide" id="decision">
         <?php if ($isOpen): ?>
           <h2>Your decision</h2>
-          <form method="post" action="action.php" onsubmit="return confirm('Final decision. Continue?')">
+          <form method="post" action="action.php" data-confirm="Final decision. Continue?">
             <input type="hidden" name="csrf" value="<?= csrf_token() ?>">
             <input type="hidden" name="action" value="resolve">
             <input type="hidden" name="order_id" value="<?= $id ?>">

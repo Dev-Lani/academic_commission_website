@@ -1,0 +1,25 @@
+/* Back buttons + page header (back_button() and back_pill() in src/helpers.php). Loads from head.php. */
+a.back-btn,a.back-row,a.back-pill{text-decoration:none}
+.back-btn{width:44px;height:44px;flex:none;display:inline-flex;align-items:center;justify-content:center;border:1.5px solid var(--line);border-radius:50%;
+  background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgb(27 35 64 / .08);cursor:pointer;
+  transition:background-color .15s,border-color .15s}
+a.back-btn:hover,.back-row:hover .back-btn{background:#EDEFF6;border-color:#B6BCD3;color:var(--ink)}
+.back-btn svg{transition:transform .15s}
+a.back-btn:hover svg,.back-row:hover .back-btn svg{transform:translateX(-2px)}
+.back-btn::after{content:"";position:absolute;inset:-4px}
+a.back-btn{position:relative}
+.back-row{display:inline-flex;align-items:center;gap:.65rem;margin-bottom:.9rem;color:var(--ink);font-weight:600}
+.back-row .back-btn{position:relative}
+.back-row:hover{color:var(--ink)}
+.back-pill{display:inline-flex;align-items:center;gap:.5rem;min-height:44px;padding:0 1.1rem;border:1.5px solid var(--line);border-radius:99px;
+  background:var(--surface);color:var(--ink);font-weight:600;font-size:.94rem}
+.back-pill:hover{background:#EDEFF6;border-color:#B6BCD3;color:var(--ink)}
+
+/* page header: round back button, small label, title, optional status on the right */
+.pg-head{display:flex;align-items:center;gap:1rem;flex-wrap:wrap;margin-bottom:1.25rem}
+.pg-t{flex:1;min-width:12rem}
+.pg-eye{margin:0 0 .15rem;font-size:.85rem;color:var(--muted)}
+.pg-head h1{margin:0;line-height:1.15;overflow-wrap:anywhere}
+.pg-tag .tag{display:inline-block;padding:.3rem .9rem;font-size:.88rem}
+
+@media (prefers-reduced-motion:reduce){.back-btn svg{transition:none}a.back-btn:hover svg,.back-row:hover .back-btn svg{transform:none}}

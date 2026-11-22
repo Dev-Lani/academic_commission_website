@@ -8,3 +8,7 @@
 <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/features.css">
 <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/type.css">
 <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/polish.css">
+<link rel="stylesheet" href="<?= BASE_URL ?>assets/css/back.css">
+<link rel="stylesheet" href="<?= BASE_URL ?>assets/css/responsive.css">
+<link rel="stylesheet" href="<?= BASE_URL ?>assets/css/toast.css">
+<script src="<?= BASE_URL ?>assets/js/toast.js" defer></script>
