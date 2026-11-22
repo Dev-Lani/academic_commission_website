@@ -43,7 +43,7 @@ $dl = ['delivered' => ['review_by', 'Review: '], 'pending_agree' => ['agree_by',
 
 /* Second panel: my open requests (client) or my open offers (commissioner) */
 if ($isClient) {
-  $q = $pdo->prepare("SELECT p.id, p.title, p.budget_min, p.budget_max, p.deadline, s.name AS subject,
+  $q = $pdo->prepare("SELECT p.id, p.title, p.deadline, s.name AS subject,
       (SELECT COUNT(*) FROM offers o WHERE o.post_id=p.id) AS n
     FROM posts p JOIN subjects s ON s.id=p.subject_id WHERE p.user_id=? AND p.status='open' ORDER BY p.created_at DESC LIMIT 5");
   $q->execute([$uid]);
@@ -195,7 +195,7 @@ function d_seg($status){
           <?php foreach ($second as $r): ?>
           <div class="d-rq">
             <a class="d-t" href="post.php?id=<?= (int)$r['id'] ?>"><?= e($r['title']) ?>
-              <small><?= e($r['subject']) ?><?= $isClient ? ' · ' . e(money($r['budget_min'])) . ' – ' . e(money($r['budget_max'])) : '' ?></small></a>
+              <small><?= e($r['subject']) ?></small></a>
             <?php if ($isClient): ?><span class="pill<?= $r['n'] ? ' ok' : '' ?>"><?= $r['n'] ? e(plural((int)$r['n'], 'offer', 'offers')) : 'No offers yet' ?></span>
             <?php else: ?><span class="pill"><?= e(money($r['price'])) ?></span><?php endif; ?>
             <span class="d-due">Due <?= e(date('M j', strtotime($r['deadline']))) ?></span>

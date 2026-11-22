@@ -34,14 +34,13 @@ for ($i = 1; $i <= PER_ROLE; $i++) {
 }
 fclose($csv);
 
-$p = $pdo->prepare('INSERT INTO posts (user_id,subject_id,title,type,pages,budget_min,budget_max,deadline,description,score) VALUES (?,?,?,?,?,?,?,?,?,?)');
+$p = $pdo->prepare('INSERT INTO posts (user_id,subject_id,title,type,pages,deadline,description,score) VALUES (?,?,?,?,?,?,?,?)');
 $o = $pdo->prepare('INSERT INTO offers (post_id,user_id,price,deliver_by,message) VALUES (?,?,?,?,?)');
 $first = $last = 0;
 for ($i = 1; $i <= POSTS; $i++) {
-  $min = random_int(200, 1000);
   $dl  = time() + random_int(2, 30) * 86400;
   $p->execute([$clients[array_rand($clients)], $subjects[array_rand($subjects)], "Load test request $i", $types[array_rand($types)],
-               random_int(1, 30), $min, $min + random_int(0, 2000), date('Y-m-d H:i:s', $dl),
+               random_int(1, 30), date('Y-m-d H:i:s', $dl),
                'Load test request. ' . str_repeat('Sample requirement text. ', 8), random_int(-5, 20)]);
   $id = (int)$pdo->lastInsertId();
   $first = $first ?: $id; $last = $id;

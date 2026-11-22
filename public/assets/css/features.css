@@ -10,11 +10,13 @@
 .cf-group{margin:.2rem 0 .4rem;font-size:.8rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
 .cf-group:not(:first-of-type){margin-top:.8rem}
 
-/* Save / Saved button */
+/* Save button: bookmark icon */
 .save-form{margin:0;display:inline-block}
-.save-btn{display:inline-flex;align-items:center;gap:.3rem;min-height:32px;padding:0 .75rem;border:1px solid var(--line);border-radius:99px;background:var(--surface);color:var(--muted);font:500 .85rem var(--font-b);cursor:pointer;white-space:nowrap}
-.save-btn:hover{border-color:#B6BCD3;color:var(--ink)}
-.save-btn.on{background:var(--hl);border-color:#E6C84C;color:#4a3d00}
+.bm{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:.4rem;width:36px;height:36px;padding:0;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--muted);cursor:pointer;font:500 .88rem var(--font-b)}
+.bm::after{content:"";position:absolute;inset:-6px -2px}
+.bm:hover{border-color:#B6BCD3;color:var(--ink)}
+.bm.on{background:var(--hl);border-color:#E6C84C;color:#4a3d00}
+.bm.txt{width:auto;padding:0 .8rem}
 .rq-act{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;justify-content:flex-end}
 .page-head .save-form{margin-top:.75rem}
 

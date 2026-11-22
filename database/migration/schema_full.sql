@@ -41,8 +41,6 @@ CREATE TABLE IF NOT EXISTS posts (
   title VARCHAR(120) NOT NULL,
   type VARCHAR(30) NOT NULL,
   pages INT NOT NULL,
-  budget_min INT NOT NULL,
-  budget_max INT NOT NULL,
   deadline DATETIME NOT NULL,
   description TEXT NOT NULL,
   status ENUM('open','claimed','in_progress','completed') NOT NULL DEFAULT 'open',

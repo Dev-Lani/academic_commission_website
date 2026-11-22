@@ -71,7 +71,7 @@ $dv = $f['deliver_by'] ? date('Y-m-d\TH:i', strtotime($f['deliver_by'])) : '';
     <p><a href="forum.php?s=<?= e($p['slug']) ?>"><?= e($p['subject']) ?></a></p>
     <h1><?= e($p['title']) ?></h1>
     <p><?= e(plural($offerCount, 'offer', 'offers')) ?> so far</p>
-    <?php if ($isComm && !$mine): $sv = saved_map($me['id'], [$id]); echo save_button($id, isset($sv[$id]), here()); endif; ?>
+    <?php if ($isComm && !$mine): $sv = saved_map($me['id'], [$id]); echo save_button($id, isset($sv[$id]), here(), true); endif; ?>
   </div>
 
   <?php if ($msg === 'sent'): ?><div class="alert ok">Offer sent. Only the client can see it.</div><?php endif; ?>
@@ -141,7 +141,7 @@ $dv = $f['deliver_by'] ? date('Y-m-d\TH:i', strtotime($f['deliver_by'])) : '';
       <?php elseif ($isComm && $p['status'] === 'open'): ?>
       <section class="panel form-panel" style="margin-top:1.5rem;max-width:none">
         <h2 style="padding:0;border:0"><?= $myOffer ? 'Your offer' : 'Send an offer' ?></h2>
-        <p class="muted">The client's budget is <?= money($p['budget_min']) ?> to <?= money($p['budget_max']) ?>. Only the client can see your offer.</p>
+        <p class="muted">Set your own price. Only the client can see your offer, and they compare offers by price, rating and past work.</p>
         <?php if ($flashErr): ?><div class="alert err" role="alert"><?= e($flashErr) ?></div><?php endif; ?>
         <form method="post" action="offer.php">
           <input type="hidden" name="csrf" value="<?= csrf_token() ?>">
@@ -181,7 +181,6 @@ $dv = $f['deliver_by'] ? date('Y-m-d\TH:i', strtotime($f['deliver_by'])) : '';
         <div><dt>Type of work</dt><dd><?= e($p['type']) ?></dd></div>
         <div><dt>Kind</dt><dd><?= task_kind($p['type']) === 'general' ? 'Everyday task' : 'School work' ?></dd></div>
         <div><dt>Size</dt><dd><?= e(size_label($p)) ?></dd></div>
-        <div><dt>Budget</dt><dd><?= money($p['budget_min']) ?> to <?= money($p['budget_max']) ?></dd></div>
         <div><dt>Deadline</dt><dd><?= e(date('M j, Y g:i A', strtotime($p['deadline']))) ?><br>
           <span class="<?= is_urgent($p) ? 'tag urgent' : 'tag' ?>" data-deadline="<?= e(date('c', strtotime($p['deadline']))) ?>">Deadline</span></dd></div>
         <div><dt>Posted by</dt><dd><?= e($p['username']) ?>

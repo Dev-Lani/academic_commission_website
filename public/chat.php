@@ -16,6 +16,16 @@ function reply($data, $code = 200){
   echo json_encode($data); exit;
 }
 
+// True if the message contains a blocked word anywhere (whole words only, any capitalisation).
+// "suck" is blocked but "sucks" is not; add or remove words in this list as you like.
+function has_unkind_word($text){
+  $words = ['wtf', 'shit', 'retard', 'suck', 'fuck'];
+  foreach ($words as $w) {
+    if (preg_match('/\b' . preg_quote($w, '/') . '\b/iu', $text)) return true;
+  }
+  return false;
+}
+
 if (!$member) {
   if ($ajax || $_SERVER['REQUEST_METHOD'] === 'GET') reply(['error' => 'Order not found.'], 404);
   header('Location: orders.php'); exit;
@@ -40,6 +50,7 @@ $err = null;
 if (!chat_open($ord['status']))              $err = 'This chat is closed.';
 elseif ($body === '')                        $err = 'Write a message first.';
 elseif (mb_strlen($body) > CHAT_MAX_LEN)     $err = 'Message is too long (max ' . CHAT_MAX_LEN . ' characters).';
+elseif (has_unkind_word($body))              $err = 'Please mind your language.';
 
 if ($err) {
   if ($ajax) reply(['error' => $err], 422);

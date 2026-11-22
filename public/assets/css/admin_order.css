@@ -1,0 +1,87 @@
+/* Admin dispute page (admin/order.php). Loads after admin.css. All classes start with ao-. */
+
+/* hero */
+.ao-hero{align-items:flex-end}
+.ao-state{display:inline-flex;align-items:center;gap:.4rem;margin-bottom:.6rem;padding:.2rem .75rem;border-radius:99px;font-size:.84rem;font-weight:600;background:rgba(255,255,255,.12);color:#fff}
+.ao-state::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--hl)}
+.ao-state.done::before{background:#6EE0A8}
+.ao-vs{display:flex;flex-wrap:wrap;align-items:center;gap:.6rem;margin-top:.9rem}
+.ao-vs i{font-style:normal;color:#9AA3CC;font-size:.9rem}
+.ao-vs a{display:inline-flex;align-items:center;gap:.5rem;padding:.25rem .8rem .25rem .3rem;border-radius:99px;background:rgba(255,255,255,.1);color:#fff;text-decoration:none;font-weight:600}
+.ao-vs a:hover{background:rgba(255,255,255,.18);color:#fff}
+.ao-vs small{font-weight:400;color:#C9CEE8}
+.ao-av{width:28px;height:28px;border-radius:50%;background:var(--hl);color:var(--ink);display:grid;place-items:center;font-size:.8rem;font-weight:700}
+.ao-av.alt{background:#fff}
+.ao-price{text-align:right;flex:none}
+.ao-price small{display:block;color:#C9CEE8}
+.ao-price b{display:block;font:700 clamp(2rem,1.2rem + 2.4vw,2.8rem)/1.1 var(--font-d);color:var(--hl);font-variant-numeric:tabular-nums}
+
+/* layout */
+.ao-main{gap:1.1rem}
+.ao-side{position:sticky;top:76px}
+.ad-card>h2 small{font:400 .8rem var(--font-b);color:var(--muted);margin-left:.4rem}
+@media (max-width:900px){.ao-side{position:static}.ao-price{text-align:left}}
+
+/* reason */
+.ao-reason blockquote{margin:0;padding:1.1rem 1.35rem;font-size:1.02rem;line-height:1.6;border-left:4px solid var(--bad);background:var(--bad-bg);overflow-wrap:anywhere}
+.ao-reason.auto blockquote{border-left-color:#C9A400;background:#FFF6CC}
+
+/* revisions */
+.ao-revs p{margin:.35rem 0 0;overflow-wrap:anywhere}
+
+/* chat */
+.ao-chat{list-style:none;margin:0;padding:1rem 1.2rem;max-height:26rem;overflow-y:auto;display:flex;flex-direction:column;gap:.6rem;background:var(--paper)}
+.ao-chat li{max-width:min(34rem,82%);display:flex;flex-direction:column;gap:.15rem}
+.ao-chat li.cl{align-self:flex-start}
+.ao-chat li.cm{align-self:flex-end;align-items:flex-end}
+.ao-b{padding:.55rem .95rem;border-radius:14px;white-space:pre-wrap;overflow-wrap:anywhere;background:var(--surface);border:1px solid var(--line)}
+.ao-chat .cl .ao-b{border-bottom-left-radius:4px}
+.ao-chat .cm .ao-b{background:var(--ink);border-color:var(--ink);color:#fff;border-bottom-right-radius:4px}
+.ao-chat small{font-size:.76rem;color:var(--muted)}
+
+/* decision */
+.ao-decide>form,.ao-done{padding:1.1rem 1.35rem 1.35rem}
+.ao-opts{display:grid;grid-template-columns:1fr 1fr;gap:.8rem;margin-bottom:1.1rem}
+.ao-opt{position:relative;display:block;cursor:pointer}
+.ao-opt input{position:absolute;opacity:0;pointer-events:none}
+.ao-opt>span{display:grid;gap:.35rem;height:100%;padding:1rem 1.05rem;border:2px solid var(--line);border-radius:14px;background:var(--surface);transition:border-color .15s,background .15s}
+.ao-opt b{font:700 1.05rem var(--font-d)}
+.ao-opt em{font-style:normal;font-size:.92rem}
+.ao-opt small{color:var(--muted);font-size:.82rem}
+.ao-opt:hover>span{border-color:#B6BCD3}
+.ao-opt.pay input:checked+span{border-color:var(--ok);background:var(--ok-bg)}
+.ao-opt.ref input:checked+span{border-color:var(--bad);background:var(--bad-bg)}
+.ao-opt input:focus-visible+span{outline:3px solid var(--brand);outline-offset:2px}
+.ao-decide .ad-btn{min-height:46px;padding:0 1.5rem}
+@media (max-width:620px){.ao-opts{grid-template-columns:1fr}.ao-decide .ad-btn{width:100%}}
+
+.ao-done{display:grid;gap:.3rem}
+.ao-done b{font:700 1.2rem var(--font-d)}
+.ao-done small{color:var(--muted)}
+.ao-done p{margin:.4rem 0 0}
+.ao-done.pay b{color:var(--ok)}
+.ao-done.ref b{color:var(--bad)}
+
+/* timeline */
+.ao-tl{list-style:none;margin:0;padding:0}
+.ao-tl li{position:relative;padding:0 0 .9rem 1.6rem}
+.ao-tl li:last-child{padding-bottom:0}
+.ao-tl li::before{content:"";position:absolute;left:0;top:.25rem;width:12px;height:12px;border-radius:50%;background:var(--surface);border:2px solid var(--brand)}
+.ao-tl li::after{content:"";position:absolute;left:5px;top:1.05rem;bottom:-.15rem;width:2px;background:var(--line)}
+.ao-tl li:last-child::after{display:none}
+.ao-tl li.bad::before{background:var(--bad);border-color:var(--bad)}
+.ao-tl li.warn::before{background:#E6C84C;border-color:#C9A400}
+.ao-tl li.ok::before{background:var(--ok);border-color:var(--ok)}
+.ao-tl b{display:block;font-size:.9rem;font-weight:600}
+.ao-tl small{color:var(--muted);font-size:.8rem}
+
+/* payout + logs */
+.ao-kv{display:flex;justify-content:space-between;gap:.75rem;padding:.3rem 0;font-size:.92rem}
+.ao-kv span{color:var(--muted)}
+.ao-kv b{font-variant-numeric:tabular-nums}
+.ao-kv.tot{border-top:1px solid var(--line);margin-top:.3rem;padding-top:.6rem}
+.ao-kv.tot span{color:var(--ink);font-weight:600}
+.ao-kv.tot b{font:700 1.2rem var(--font-d);color:var(--ok)}
+.ao-log{list-style:none;margin:0;padding:0;display:grid;gap:.35rem;max-height:12rem;overflow-y:auto;font-size:.86rem}
+.ao-log li{display:flex;justify-content:space-between;gap:.5rem;color:var(--muted)}
+.ao-log code{font-size:.8rem;color:var(--ink)}

@@ -129,15 +129,19 @@ function saved_map($uid, array $postIds){
 }
 
 // The Save / Saved button. $back must be a forum.php, post.php or saved.php address (bookmark.php checks it).
-function save_button($postId, $isSaved, $back){
+// The Save button: a bookmark icon. Outline = not saved, filled yellow = saved.
+// $withText = true adds the word "Save"/"Saved" (use it on post.php, where there is room).
+function save_button($postId, $isSaved, $back, $withText = false){
+  $icon = '<svg width="18" height="18" viewBox="0 0 24 24" fill="' . ($isSaved ? 'currentColor' : 'none') . '" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h12v18l-6-4-6 4z"/></svg>';
+  $label = $isSaved ? 'Remove from your saved requests' : 'Save this request for later';
   return '<form method="post" action="bookmark.php" class="save-form">'
        . '<input type="hidden" name="csrf" value="' . csrf_token() . '">'
        . '<input type="hidden" name="post_id" value="' . (int)$postId . '">'
        . '<input type="hidden" name="to" value="' . ($isSaved ? '0' : '1') . '">'
        . '<input type="hidden" name="back" value="' . e($back) . '">'
-       . '<button class="save-btn' . ($isSaved ? ' on' : '') . '" aria-pressed="' . ($isSaved ? 'true' : 'false') . '"'
-       . ' title="' . ($isSaved ? 'Remove from your saved requests' : 'Save this request for later') . '">'
-       . '<span aria-hidden="true">' . ($isSaved ? '★' : '☆') . '</span> ' . ($isSaved ? 'Saved' : 'Save') . '</button></form>';
+       . '<button class="bm' . ($isSaved ? ' on' : '') . ($withText ? ' txt' : '') . '" aria-pressed="' . ($isSaved ? 'true' : 'false') . '"'
+       . ' aria-label="' . e($label) . '" title="' . e($label) . '">' . $icon
+       . ($withText ? '<span>' . ($isSaved ? 'Saved' : 'Save') . '</span>' : '') . '</button></form>';
 }
 
 

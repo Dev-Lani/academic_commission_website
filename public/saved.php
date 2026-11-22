@@ -4,7 +4,7 @@ require dirname(__DIR__) . '/src/bootstrap.php';
 $me = require_login();
 if ($me['role'] !== 'commissioner') { header('Location: forum.php'); exit; }
 
-$q = $pdo->prepare("SELECT p.id, p.title, p.type, p.pages, p.budget_min, p.budget_max, p.deadline, p.status,
+$q = $pdo->prepare("SELECT p.id, p.title, p.type, p.pages, p.deadline, p.status,
     s.name AS subject,
     (SELECT COUNT(*) FROM offers o WHERE o.post_id=p.id) AS offer_count,
     (SELECT COUNT(*) FROM offers o WHERE o.post_id=p.id AND o.user_id=?) AS my_offer
@@ -39,7 +39,6 @@ $rows = $q->fetchAll();
         </div>
         <h3><a href="post.php?id=<?= (int)$r['id'] ?>"><?= e($r['title']) ?></a></h3>
         <div class="sv-meta">
-          <span><?= e(money($r['budget_min']) . ' – ' . money($r['budget_max'])) ?></span>
           <span><?= e(size_label($r)) ?></span>
           <span class="<?= is_urgent($r) ? 'hot' : '' ?>">Due <?= e(date('M j, g:i A', strtotime($r['deadline']))) ?></span>
         </div>
