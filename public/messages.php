@@ -290,7 +290,7 @@ $hideBubble = true; // nasa Messages page na tayo, hindi na kailangan ang floati
           <?php if ($opFile['ok']): ?>
             <div class="fcard">
               <div class="fc-top"><span class="fc-ic" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5"/></svg></span>
-                <div><b><?= e($opFile['name']) ?></b><small><?= $isComm ? 'The file you delivered' : 'Unlocked after approval' ?></small></div></div>
+                <div><b><?= mid_trunc($opFile['name']) ?></b><small><?= $isComm ? 'The file you delivered' : 'Unlocked after approval' ?></small></div></div>
               <a class="btn" href="download.php?id=<?= (int)$selId ?>">Download</a>
             </div>
           <?php else: ?>

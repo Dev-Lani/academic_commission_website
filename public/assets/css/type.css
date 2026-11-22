@@ -1,0 +1,66 @@
+/* Typography layer. Loads after style/ui/features and before the page css files.
+   Defaults are low-specificity; overrides use "html body" so page css can't undo them. */
+
+/* 5. Fluid type */
+:root{--fs-h1:clamp(1.5rem,1.15rem + 1.4vw,2rem);--fs-h2:clamp(1.15rem,1.05rem + .5vw,1.35rem);--fs-stat:clamp(1.3rem,1.05rem + 1vw,1.65rem)}
+body{font-size:clamp(15px,14.4px + .12vw,16px);font-kerning:normal;font-optical-sizing:auto}
+h1{font-size:var(--fs-h1)}
+h2{font-size:var(--fs-h2)}
+h1,h2,h3{text-wrap:balance}
+p,li{text-wrap:pretty}
+html body .d-stat b,html body .tx-stat b{font-size:var(--fs-stat)}
+.d-stat b,.tx-stat b,.tx-amt,.price,.clock,.o-price,.badge,[data-deadline]{font-variant-numeric:tabular-nums}
+
+/* 1. Reserved bold width: "active" = hairline stroke, so the label never changes width */
+html body .sb-it.on,
+html body .rt-tags .qk[aria-pressed=true],
+html body .nt-row.unread .nt-b b{font-weight:500}
+html body .rt-face input:checked+.rt-tile b{font-weight:600}
+html body .o-steps li.cur,
+html body .o-steps li.bad,
+html body .convo.unread .cv-prev{font-weight:400}
+html body .sb-it.on,
+html body .rt-tags .qk[aria-pressed=true],
+html body .nt-row.unread .nt-b b,
+html body .rt-face input:checked+.rt-tile b,
+html body .o-steps li.cur,
+html body .o-steps li.bad,
+html body .convo.unread .cv-prev{-webkit-text-stroke:.35px currentColor}
+
+/* 2. Text-box trim: optical centering in chips and tight headings (Chrome 133+, Safari 18.2+) */
+@supports (text-box:trim-both cap alphabetic){
+  h1,h3,.fcl,.fc span,.qk,.save-btn{text-box:trim-both cap alphabetic}
+}
+
+/* 3. Underline offset */
+a:not([class]),.page-head a,.alert a,.empty a,.switch a{
+  text-decoration-line:underline;text-decoration-thickness:.075em;text-underline-offset:.22em;text-decoration-skip-ink:auto;
+  text-decoration-color:color-mix(in srgb,currentColor 45%,transparent)}
+a:not([class]):hover,.page-head a:hover,.alert a:hover,.empty a:hover,.switch a:hover{text-decoration-color:currentColor}
+
+/* 4. Superscript spacing: no extra line gap */
+sup,sub{font-size:.7em;line-height:0;vertical-align:baseline;position:relative}
+sup{top:-.45em}
+sub{top:.25em}
+
+/* 6. Small caps for acronyms: <abbr title="American Psychological Association">APA</abbr> */
+abbr[title]{text-decoration:none;font-variant-caps:all-small-caps;letter-spacing:.04em}
+
+/* 7. Curly quotes */
+html{quotes:"\201C" "\201D" "\2018" "\2019"}
+
+/* 8. Middle truncation: mid_trunc() in helpers.php prints this markup */
+.mt{display:flex;min-width:0;max-width:100%}
+.mt-h{flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:pre}
+.mt-t{flex:none;white-space:pre}
+
+/* 9. Auto hyphenation (long-form text only, not chat) */
+.desc,.cp-bio,.pf-text,.offer-msg,.rq-excerpt,.rv-box p,.rv-list p{
+  hyphens:auto;hyphenate-limit-chars:7 3 3;overflow-wrap:break-word}
+
+/* 10. Line-clamped titles */
+html body .rq h3 a,
+html body .sv-card h3 a,
+html body .o-title,
+html body .d-card .d-t{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2;overflow:hidden}
+html body .page-head h1{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;line-clamp:3;overflow:hidden}

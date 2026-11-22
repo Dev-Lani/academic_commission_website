@@ -6,3 +6,5 @@
 <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/style.css">
 <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/ui.css">
 <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/features.css">
+<link rel="stylesheet" href="<?= BASE_URL ?>assets/css/type.css">
+<link rel="stylesheet" href="<?= BASE_URL ?>assets/css/polish.css">

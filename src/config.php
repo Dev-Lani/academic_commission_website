@@ -26,3 +26,5 @@ const TIER_ORDER   = ['Bronze','Silver','Gold','Platinum'];
 const CLIENT_TIERS = ['New','Reliable','Trusted','VIP'];
 const TIER_FEE     = ['Bronze'=>10, 'Silver'=>8, 'Gold'=>6, 'Platinum'=>5]; // platform cut per commissioner tier
 const TIER_JOBS    = ['Bronze'=>2, 'Silver'=>4, 'Gold'=>99, 'Platinum'=>99]; // max active jobs
+const MAX_REVISIONS  = 2;   // revision requests per order
+const REVISION_HOURS = 24;  // oras ng commissioner para mag-deliver ng revision

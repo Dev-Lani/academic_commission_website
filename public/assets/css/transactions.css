@@ -21,7 +21,7 @@
 .tx-day span{font-size:.82rem;color:var(--muted)}
 .tx-list{list-style:none;margin:0;padding:0;background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden}
 .tx-row{display:grid;grid-template-columns:auto 1fr auto;gap:.9rem;align-items:center;padding:.8rem 1rem;min-width:0}
-.tx-row+.tx-row{border-top:1px solid #EDEFF6}
+.tx-row+.tx-row{border-top:1px solid var(--line-soft)}
 .tx-row:hover{background:#F8F9FD}
 
 /* icon circle */

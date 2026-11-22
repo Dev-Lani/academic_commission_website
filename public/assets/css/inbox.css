@@ -13,7 +13,7 @@
 
 .nt-list{list-style:none;margin:0;padding:0;background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden}
 .nt-row{display:grid;grid-template-columns:auto 1fr auto;gap:.9rem;align-items:center;padding:.85rem 1rem;min-width:0}
-.nt-row+.nt-row{border-top:1px solid #EDEFF6}
+.nt-row+.nt-row{border-top:1px solid var(--line-soft)}
 .nt-row.unread{background:#F6F7FE;box-shadow:inset 3px 0 0 var(--brand)}
 .nt-row:hover{background:#F8F9FD}
 .nt-row.unread:hover{background:#EEF0FD}

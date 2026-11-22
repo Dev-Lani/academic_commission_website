@@ -53,6 +53,7 @@ if ($mine) {
   $q->execute($params);
   $offers = $q->fetchAll();
   $cprof  = commissioner_profiles(array_column($offers, 'user_id')); // bio + skills for every offer, two queries total
+  $ostats = offer_stats(array_column($offers, 'user_id'));           // rating + completed, 2 queries total
 } elseif ($isComm) {
   $q = $pdo->prepare('SELECT * FROM offers WHERE post_id=? AND user_id=?');
   $q->execute([$id, $me['id']]);
@@ -107,7 +108,7 @@ $dv = $f['deliver_by'] ? date('Y-m-d\TH:i', strtotime($f['deliver_by'])) : '';
           <article class="offer">
             <div>
               <div class="offer-who">
-                <?php $st = user_stats($o['user_id']); ?>
+                <?php $st = $ostats[(int)$o['user_id']]; ?>
                 <b><a href="profile.php?u=<?= urlencode($o['username']) ?>"><?= e($o['username']) ?></a></b>
                 <span class="chip tier"><?= e($o['tier']) ?></span>
                 <?php if ($o['is_verified']): ?><span class="chip">Verified</span><?php endif; ?>

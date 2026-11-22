@@ -8,3 +8,48 @@
 .decision{display:grid;gap:.6rem;margin-bottom:1rem}
 .decision label{display:flex;gap:.6rem;align-items:flex-start;font-weight:500}
 .decision input{margin-top:.35rem}
+
+.pf-hero{display:flex;flex-direction:column;gap:1.5rem;padding:1.75rem;margin-bottom:1.5rem;border-radius:16px}
+.pf-top{display:flex;flex-wrap:wrap;align-items:center;gap:1.5rem}
+.pf-av{width:88px;height:88px;border-radius:50%;background:var(--brand);color:#fff;font:700 36px var(--font-d);display:grid;place-items:center}
+.pf-client .pf-av{background:var(--ink);color:var(--hl)}
+.pf-id{flex:1 1 20rem;min-width:0}
+.pf-id h1{margin:0;font-size:clamp(2rem,1rem + 3vw,2.6rem);line-height:1.1}
+.pf-sub{margin:.4rem 0 .9rem;color:var(--muted)}
+.pf-chips{display:flex;flex-wrap:wrap;gap:.5rem}
+.pf-trust{display:flex;align-items:center;gap:.9rem;font-size:.88rem;color:var(--muted)}
+.pf-trust b{display:block;color:var(--ink);font-size:1rem}
+.pf-ring{width:112px;height:112px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--brand) calc(var(--p) * 1%),#E8EBF7 0)}
+.pf-ring b{width:86px;height:86px;border-radius:50%;background:var(--surface);display:grid;place-items:center;font:700 32px var(--font-d)}
+.pf-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1rem;padding-top:1.25rem;border-top:1px solid var(--line-soft)}
+.pf-stat b{display:block;font:700 28px/1.2 var(--font-d)}
+.pf-stat small{color:var(--muted);font-size:.88rem}
+.pf-rev,.pf-dist,.cp-about{border-radius:16px}
+.pf-rev>h2,.pf-dist>h2,.cp-about>h2{border:0;padding:1.25rem 1.5rem .25rem}
+.pf-list li{padding-inline:1.5rem}
+
+.pf-list{list-style:none;margin:0;padding:0}
+.pf-list li{padding:.9rem 1.25rem}
+.pf-list li+li{border-top:1px solid var(--line)}
+.pf-rt{display:flex;flex-wrap:wrap;align-items:baseline;gap:.2rem .6rem}
+.pf-stars{color:#C28A00;letter-spacing:.05em}
+.pf-stars i{font-style:normal;color:var(--line)}
+.pf-rt time{margin-left:auto;font-size:.8rem;color:var(--muted)}
+.pf-text{margin:.3rem 0 0}
+
+.pf-dist ul{list-style:none;margin:0;padding:.9rem;display:grid;gap:.55rem}
+.pf-dist li{display:grid;grid-template-columns:2.2rem 1fr 2rem;gap:.6rem;align-items:center;font-size:.88rem}
+.pf-dist li i{position:relative;height:8px;border-radius:4px;background:#E8EBF7;overflow:hidden}
+.pf-dist li i::after{content:"";position:absolute;inset:0 auto 0 0;width:var(--w);background:var(--brand)}
+.pf-dist li b{text-align:right;font-weight:600}
+
+@media (max-width:560px){
+  .pf-hero{padding:1.25rem}
+}
+
+/* Pantay na 1.5rem na gilid sa loob ng lahat ng profile panels */
+.cp-about>:not(h2){margin-inline:1.5rem}
+.cp-about{padding-bottom:.6rem}
+.pf-list li{padding:.9rem 1.5rem}
+.pf-rev{padding-bottom:.5rem}
+.pf-dist ul{padding:1rem 1.5rem 1.4rem}

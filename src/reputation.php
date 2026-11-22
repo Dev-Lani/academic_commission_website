@@ -79,3 +79,18 @@ function unrated_order($uid){
   return $q->fetchColumn() ?: null;
 }
 
+// Rating at completed count ng maraming user sa isang query (para sa post.php).
+function offer_stats(array $ids){
+  global $pdo;
+  $ids = array_values(array_unique(array_map('intval', $ids)));
+  $out = array_fill_keys($ids, ['rating' => null, 'rating_n' => 0, 'completed' => 0]);
+  if (!$ids) return $out;
+  $in = implode(',', array_fill(0, count($ids), '?'));
+  $q = $pdo->prepare("SELECT ratee_id, AVG(stars) AS a, COUNT(*) AS n FROM ratings WHERE ratee_id IN ($in) GROUP BY ratee_id");
+  $q->execute($ids);
+  foreach ($q as $r) { $out[(int)$r['ratee_id']]['rating'] = (float)$r['a']; $out[(int)$r['ratee_id']]['rating_n'] = (int)$r['n']; }
+  $q = $pdo->prepare("SELECT commissioner_id AS u, COUNT(*) AS n FROM orders WHERE status='completed' AND commissioner_id IN ($in) GROUP BY commissioner_id");
+  $q->execute($ids);
+  foreach ($q as $r) $out[(int)$r['u']]['completed'] = (int)$r['n'];
+  return $out;
+}

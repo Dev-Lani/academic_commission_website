@@ -22,12 +22,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   if (!csrf_ok())                                         $err = 'Your session expired. Reload the page and try again.';
   elseif (unrated_order($me['id']))                       $err = 'Rate your completed order first (My orders), then post a new request.';
   elseif (!in_array($sid, array_column($subjects, 'id'))) $err = 'Choose a subject.';
-  elseif (strlen($old['title']) < 5 || strlen($old['title']) > 120) $err = 'Title must be 5 to 120 characters.';
+  elseif (mb_strlen($old['title']) < 5 || mb_strlen($old['title']) > 120) $err = 'Title must be 5 to 120 characters.';
   elseif (!in_array($old['type'], $types, true))          $err = 'Choose the type of work.';
   elseif ((int)$old['pages'] < 1 || (int)$old['pages'] > 500) $err = 'Pages must be between 1 and 500.';
   elseif ($min < 1 || $max < $min)                        $err = 'Enter a valid budget. The maximum can\'t be lower than the minimum.';
   elseif (!$dl || $dl->getTimestamp() <= time())          $err = 'Pick a deadline in the future.';
-  elseif (strlen($old['description']) < 20)               $err = 'Describe the work in at least 20 characters so commissioners know what to offer.';
+  elseif (mb_strlen($old['description']) < 20)            $err = 'Describe the work in at least 20 characters so commissioners know what to offer.';
   else {
     $pdo->prepare('INSERT INTO posts (user_id, subject_id, title, type, pages, budget_min, budget_max, deadline, description)
                    VALUES (?,?,?,?,?,?,?,?,?)')

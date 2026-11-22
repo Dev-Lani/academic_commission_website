@@ -187,3 +187,10 @@ function commissioner_about_html($username){
   if ($owner) $h .= '<p><a class="btn ghost sm" href="' . BASE_URL . 'edit_profile.php">Edit bio &amp; skills</a></p>';
   return $h . '</section>';
 }
+
+// Middle truncation: "Very long na pa…me_final.docx". Pair with .mt in type.css.
+function mid_trunc($s, $tail = 10){
+  $s = (string)$s;
+  if (mb_strlen($s) <= $tail + 6) return e($s);
+  return '<span class="mt" title="' . e($s) . '"><span class="mt-h">' . e(mb_substr($s, 0, -$tail)) . '</span><span class="mt-t">' . e(mb_substr($s, -$tail)) . '</span></span>';
+}

@@ -48,8 +48,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <input type="email" id="email" name="email" value="<?= e($old['email']) ?>" autocomplete="email" required>
         <p class="hint">A school email helps you get verified later.</p></div>
       <div class="field"><label class="lbl" for="password">Password</label>
-        <input type="password" id="password" name="password" minlength="8" autocomplete="new-password" required>
-        <p class="hint">At least 8 characters.</p></div>
+        <div class="pw" id="pw">
+          <input type="password" id="password" name="password" minlength="8" autocomplete="new-password" required>
+          <svg class="pw-line" aria-hidden="true"><rect pathLength="1"/></svg>
+        </div>
+        <p class="hint" id="pw-hint" aria-live="polite">At least 8 characters.</p></div>
+      <script src="<?= BASE_URL ?>assets/js/pw.js" defer></script>
       <button class="btn">Create account</button>
     </form>
     <p class="switch">Already registered? <a href="login.php">Log in</a></p>

@@ -29,8 +29,8 @@ if (unrated_order($me['id']))                            $err = 'Rate your compl
 elseif ($price < 1)                                       $err = 'Enter your price in pesos.';
 elseif (!$dl || $dl->getTimestamp() <= time())            $err = 'Pick a delivery date in the future.';
 elseif ($dl->getTimestamp() > strtotime($post['deadline'])) $err = 'Your delivery date must be on or before the client\'s deadline.';
-elseif (strlen($message) < 10 || strlen($message) > 1000) $err = 'Your message must be 10 to 1000 characters.';
-elseif (strlen($sample) > 500)                            $err = 'Sample work must be 500 characters or fewer.';
+elseif (mb_strlen($message) < 10 || mb_strlen($message) > 1000) $err = 'Your message must be 10 to 1000 characters.';
+elseif (mb_strlen($sample) > 500)                               $err = 'Sample work must be 500 characters or fewer.';
 
 if ($err) {
   $_SESSION['flash_err'] = $err;

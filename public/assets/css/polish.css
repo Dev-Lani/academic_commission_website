@@ -1,0 +1,67 @@
+/* Polish layer: OKLCH palette, alpha borders, nested radii, hit areas, edge fades, motion, password field.
+   Loads after type.css. Overrides use "html body" so page css can't undo them. */
+
+/* Palette in OKLCH (same hue as before; equal lightness steps look equal) + alpha borders */
+:root{
+  --brand:oklch(.5 .217 271);
+  --brand-dark:oklch(.4 .185 271);
+  --brand-tint:oklch(.96 .025 271);
+  --line:rgb(27 35 64 / .14);
+  --line-soft:rgb(27 35 64 / .08);
+  --ease:cubic-bezier(.2,.8,.2,1);
+}
+
+/* Nested corners: inner radius = outer radius - padding (never below 4px) */
+html body .convo{border-radius:max(4px,calc(10px - .4rem))}
+html body .fcard,html body .cf-prev,html body .rt-box,html body .rt-prev{border-radius:max(4px,calc(10px - .9rem))}
+html body .d-ql a{border-radius:max(4px,calc(12px - 1rem))}
+
+/* Icon stroke follows the text weight next to it */
+.sb-ic{stroke-width:1.8}
+.sb-it.on .sb-ic{stroke-width:2.1}
+
+/* Bigger hit areas than they look (Fitts) */
+.vbtn,.save-btn,.qk,.op-x{position:relative}
+.vbtn::after,.save-btn::after,.qk::after,.op-x::after{content:"";position:absolute;inset:-6px -2px}
+
+/* Scrolling chip rows fade at the edges */
+html body .subj-row,html body .nt-filters,html body .tx-filters{
+  padding-inline:.75rem;margin-inline:-.75rem;
+  -webkit-mask-image:linear-gradient(90deg,transparent,#000 .75rem calc(100% - .75rem),transparent);
+  mask-image:linear-gradient(90deg,transparent,#000 .75rem calc(100% - .75rem),transparent)}
+
+/* Full-height sections: dvh, not vh (Safari) */
+@supports (height:100dvh){
+  html body .auth{min-height:100dvh}
+  html body .viewer{height:72dvh}
+  html body .mb-pop{height:min(28rem,calc(100dvh - 8.5rem))}
+}
+
+/* Password field: outline draws as you type and closes when strong (see pw.js) */
+.pw{position:relative}
+.pw-line{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+.pw-line rect{x:1px;y:1px;width:calc(100% - 2px);height:calc(100% - 2px);rx:8px;fill:none;stroke:var(--brand);stroke-width:2;
+  stroke-dasharray:1;stroke-dashoffset:calc(1 - var(--pw,0));transition:stroke-dashoffset .25s var(--ease),stroke .25s}
+.pw.done .pw-line rect{stroke:var(--ok)}
+.pw.bad input{border-color:var(--bad)}
+#pw-hint.bad{color:var(--bad)}
+
+/* Registered so the ring can animate from 0 */
+@property --p{syntax:"<number>";inherits:true;initial-value:0}
+
+@media (prefers-reduced-motion:no-preference){
+  /* Press: a quick squash on impact (under 300ms) */
+  .btn,.fcl,.save-btn,.vbtn,.qk{transition:transform .12s var(--ease),background-color .15s,border-color .15s,color .15s}
+  .btn:not(:disabled):active,.fcl:active,.save-btn:active,.vbtn:not(:disabled):active,.qk:active{transform:scale(.96,.94)}
+
+  /* Menus open from where you clicked */
+  .dd:not([hidden]),.mb-pop:not([hidden]){--pop-y:-4px;transform-origin:top right;animation:pop-in .16s var(--ease)}
+  .mb-pop:not([hidden]){--pop-y:4px;transform-origin:bottom right}
+  @keyframes pop-in{from{opacity:0;transform:translateY(var(--pop-y)) scale(.97)}}
+
+  /* One reveal: trust ring fills and bars grow when the profile or dashboard loads */
+  .d-ring,.pf-ring{animation:ring .3s var(--ease) both}
+  @keyframes ring{from{--p:0}}
+  .pf-dist li i::after{animation:bar .3s var(--ease) both}
+  @keyframes bar{from{width:0}}
+}
